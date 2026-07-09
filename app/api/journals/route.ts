@@ -17,11 +17,32 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
+  const PARTICIPANTS = [
+    "Ivan",
+    "Rafa",
+    "Fadli",
+    "Adhy",
+    "Robi",
+    "Maul",
+    "Rully",
+    "Frans",
+    "Yogi",
+  ];
   const authorName = String(body.authorName).slice(0, 60).trim();
   const title = String(body.title).slice(0, 200).trim();
   const content = String(body.content).slice(0, 20000).trim();
   if (!authorName || !title || !content) {
     return new NextResponse("Input tidak valid", { status: 400 });
+  }
+  if (!PARTICIPANTS.includes(authorName)) {
+    return new NextResponse("Nama harus dari daftar peserta", { status: 400 });
+  }
+  const sentences = (content.match(/[^.!?\n]+[.!?]+/g) || []).length;
+  if (sentences < 5) {
+    return new NextResponse(
+      `Isi jurnal minimal 5 kalimat (baru ${sentences}).`,
+      { status: 400 }
+    );
   }
   const journal = await prisma.journal.create({
     data: { authorName, title, content },
