@@ -24,12 +24,13 @@ export default function RootLayout({
             <nav className="flex gap-6 text-sm">
               <Link href="/" className="hover:text-accent">Beranda</Link>
               <Link href="/new" className="hover:text-accent">Tulis Jurnal</Link>
+              <Link href="/export" className="hover:text-accent">Export</Link>
             </nav>
           </div>
         </header>
         <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
         <footer className="max-w-5xl mx-auto px-4 py-8 text-xs text-ink/50">
-          Dibangun untuk latihan IELTS Writing. Analisis oleh Claude Sonnet.
+          Dibangun untuk latihan IELTS Writing. Export bulk → paste ke Claude chat untuk review.
         </footer>
       </body>
     </html>

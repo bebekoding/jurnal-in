@@ -24,7 +24,7 @@ export default async function HomePage() {
   const journals = await prisma.journal
     .findMany({
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { reviews: true } }, analysis: true },
+      include: { _count: { select: { reviews: true } } },
       take: 50,
     })
     .catch(() => []);
@@ -36,9 +36,9 @@ export default async function HomePage() {
           Latih writing IELTS-mu, satu jurnal setiap hari.
         </h1>
         <p className="mt-4 text-ink/70 max-w-2xl mx-auto">
-          Setor jurnal harian, baca tulisan teman, review bareng, dan biarkan
-          Claude membantu memperbaiki grammar serta meng-upgrade vocabulary ke
-          level band 7–9.
+          Setor jurnal harian, baca tulisan teman, dan review bareng. Rekap
+          bulk siap-paste ke Claude chat untuk analisis grammar & upgrade
+          vocabulary ke band 7–9.
         </p>
         <div className="mt-6 flex justify-center gap-3">
           <Link
@@ -88,13 +88,6 @@ export default async function HomePage() {
                     <span className="text-ink/50">
                       💬 {j._count.reviews} review
                     </span>
-                    {j.analysis ? (
-                      <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        Band {j.analysis.bandScore.toFixed(1)}
-                      </span>
-                    ) : (
-                      <span className="text-ink/40">Belum dianalisis</span>
-                    )}
                   </div>
                 </Link>
               </li>

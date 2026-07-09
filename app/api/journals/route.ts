@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   const journals = await prisma.journal.findMany({
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { reviews: true } }, analysis: true },
+    include: { _count: { select: { reviews: true } } },
     take: 100,
   });
   return NextResponse.json(journals);

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import ReviewForm from "./ReviewForm";
-import AnalysisPanel from "./AnalysisPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +29,6 @@ export default async function JournalDetailPage({
       where: { id: params.id },
       include: {
         reviews: { orderBy: { createdAt: "asc" } },
-        analysis: true,
       },
     })
     .catch(() => null);
@@ -58,11 +56,6 @@ export default async function JournalDetailPage({
         </h1>
         <div className="prose-journal">{journal.content}</div>
       </article>
-
-      <AnalysisPanel
-        journalId={journal.id}
-        initial={journal.analysis}
-      />
 
       <section>
         <h2 className="font-serif text-xl font-semibold mb-3">

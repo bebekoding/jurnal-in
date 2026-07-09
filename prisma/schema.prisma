@@ -15,7 +15,6 @@ model Journal {
   content   String
   createdAt DateTime   @default(now())
   reviews   Review[]
-  analysis  Analysis?
 
   @@index([createdAt])
 }
@@ -29,21 +28,4 @@ model Review {
   journal    Journal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
 
   @@index([journalId])
-}
-
-model Analysis {
-  id             String   @id @default(cuid())
-  journalId      String   @unique
-  bandScore      Float
-  taskAchievement Float
-  coherence      Float
-  lexical        Float
-  grammar        Float
-  summary        String
-  grammarFixes   Json
-  vocabUpgrades  Json
-  structureFeedback String
-  improvedText   String
-  createdAt      DateTime @default(now())
-  journal        Journal  @relation(fields: [journalId], references: [id], onDelete: Cascade)
 }
