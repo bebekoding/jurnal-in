@@ -7,7 +7,13 @@ export async function GET() {
   try {
     const journals = await prisma.journal.findMany({
       orderBy: { createdAt: "desc" },
-      include: {
+      select: {
+        id: true,
+        authorName: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        topicId: true,
         _count: { select: { reviews: true } },
         topic: { select: { id: true, title: true } },
       },
@@ -17,7 +23,14 @@ export async function GET() {
   } catch {
     const journals = await prisma.journal.findMany({
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { reviews: true } } },
+      select: {
+        id: true,
+        authorName: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        _count: { select: { reviews: true } },
+      },
       take: 100,
     });
     return NextResponse.json(journals);
