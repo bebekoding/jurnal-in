@@ -21,9 +21,10 @@ export default function RootLayout({
             <Link href="/" className="font-serif text-2xl font-bold tracking-tight">
               Jurnal<span className="text-accent">.in</span>
             </Link>
-            <nav className="flex gap-6 text-sm">
+            <nav className="flex gap-4 md:gap-6 text-sm">
               <Link href="/" className="hover:text-accent">Beranda</Link>
-              <Link href="/new" className="hover:text-accent">Tulis Jurnal</Link>
+              <Link href="/new" className="hover:text-accent">Jurnal</Link>
+              <Link href="/topics" className="hover:text-accent">Topik</Link>
               <Link href="/export" className="hover:text-accent">Export</Link>
             </nav>
           </div>

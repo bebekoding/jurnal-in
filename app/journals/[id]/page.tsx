@@ -29,6 +29,7 @@ export default async function JournalDetailPage({
       where: { id: params.id },
       include: {
         reviews: { orderBy: { createdAt: "asc" } },
+        topic: { select: { id: true, title: true, description: true } },
       },
     })
     .catch(() => null);
@@ -51,9 +52,19 @@ export default async function JournalDetailPage({
           </span>
           <span>{wordCount(journal.content)} kata</span>
         </div>
-        <h1 className="font-serif text-3xl font-bold leading-tight mb-4">
+        {journal.topic && (
+          <div className="mb-3 inline-block bg-indigo-50 text-accent border border-indigo-100 text-xs px-2 py-1 rounded-full">
+            Random Topic
+          </div>
+        )}
+        <h1 className="font-serif text-3xl font-bold leading-tight mb-3">
           {journal.title}
         </h1>
+        {journal.topic?.description && (
+          <p className="text-sm text-ink/60 mb-4 italic">
+            {journal.topic.description}
+          </p>
+        )}
         <div className="prose-journal">{journal.content}</div>
       </article>
 

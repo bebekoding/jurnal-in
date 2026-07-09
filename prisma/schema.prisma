@@ -9,14 +9,28 @@ datasource db {
 }
 
 model Journal {
-  id        String     @id @default(cuid())
+  id         String    @id @default(cuid())
   authorName String
-  title     String
-  content   String
-  createdAt DateTime   @default(now())
-  reviews   Review[]
+  title      String
+  content    String
+  createdAt  DateTime  @default(now())
+  topicId    String?
+  reviews    Review[]
+  topic      Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
+  @@index([topicId])
+}
+
+model Topic {
+  id           String    @id @default(cuid())
+  title        String
+  description  String?
+  scheduledFor DateTime  @db.Date
+  createdAt    DateTime  @default(now())
+  journals     Journal[]
+
+  @@index([scheduledFor])
 }
 
 model Review {

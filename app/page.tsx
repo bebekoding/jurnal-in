@@ -24,7 +24,10 @@ export default async function HomePage() {
   const journals = await prisma.journal
     .findMany({
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { reviews: true } } },
+      include: {
+        _count: { select: { reviews: true } },
+        topic: { select: { title: true } },
+      },
       take: 50,
     })
     .catch(() => []);
@@ -40,12 +43,18 @@ export default async function HomePage() {
           bulk siap-paste ke Claude chat untuk analisis grammar & upgrade
           vocabulary ke band 7–9.
         </p>
-        <div className="mt-6 flex justify-center gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href="/new"
             className="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent transition"
           >
-            + Tulis jurnal baru
+            + Jurnal harian
+          </Link>
+          <Link
+            href="/topics"
+            className="bg-white border border-ink/20 text-ink px-5 py-2.5 rounded-full text-sm font-medium hover:border-accent hover:text-accent transition"
+          >
+            🎯 Random topic
           </Link>
         </div>
       </section>
@@ -78,6 +87,11 @@ export default async function HomePage() {
                     </span>
                     <span>{wordCount(j.content)} kata</span>
                   </div>
+                  {j.topic && (
+                    <div className="mb-2 inline-block bg-indigo-50 text-accent border border-indigo-100 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide">
+                      Topic
+                    </div>
+                  )}
                   <h3 className="font-serif text-lg font-semibold leading-snug">
                     {j.title}
                   </h3>
