@@ -7,7 +7,11 @@ function addDaysISO(iso: string, n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-type IncomingTopic = { title: string; description?: string };
+type IncomingTopic = {
+  title: string;
+  titleId?: string;
+  description?: string;
+};
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -31,12 +35,17 @@ export async function POST(req: Request) {
   const topics: IncomingTopic[] = rawTopics
     .map((t: any) => {
       if (typeof t === "string") {
-        const [title, ...rest] = t.split("|").map((s) => s.trim());
-        return { title, description: rest.join(" | ") || undefined };
+        const parts = t.split("|").map((s) => s.trim());
+        return {
+          title: parts[0] || "",
+          titleId: parts[1] || undefined,
+          description: parts[2] || undefined,
+        };
       }
       if (t && typeof t === "object") {
         return {
           title: String(t.title || "").trim(),
+          titleId: t.titleId ? String(t.titleId).trim() : undefined,
           description: t.description
             ? String(t.description).trim()
             : undefined,
@@ -44,7 +53,7 @@ export async function POST(req: Request) {
       }
       return { title: "" };
     })
-    .filter((t: IncomingTopic) => t.title.length > 0 && t.title.length <= 300);
+    .filter((t: IncomingTopic) => t.title.length > 0 && t.title.length <= 500);
 
   if (topics.length === 0) {
     return new NextResponse("Tidak ada topik valid", { status: 400 });
@@ -57,6 +66,7 @@ export async function POST(req: Request) {
     const dayOffset = Math.floor(i / 3);
     return {
       title: t.title,
+      titleId: t.titleId ?? null,
       description: t.description ?? null,
       scheduledFor: new Date(addDaysISO(startDate, dayOffset) + "T00:00:00Z"),
     };

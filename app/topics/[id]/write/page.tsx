@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import WriteForm from "./WriteForm";
+import TopicHeader from "./TopicHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -37,19 +38,11 @@ export default async function WriteTopicPage({
         </Link>
       </div>
 
-      <section className="border border-ink/10 rounded-lg p-6 bg-white">
-        <div className="text-xs uppercase tracking-widest text-accent mb-1">
-          Topik
-        </div>
-        <h1 className="font-serif text-2xl font-bold leading-snug mb-2">
-          {topic.title}
-        </h1>
-        {topic.description && (
-          <p className="text-sm text-ink/70 leading-relaxed">
-            {topic.description}
-          </p>
-        )}
-      </section>
+      <TopicHeader
+        title={topic.title}
+        titleId={topic.titleId}
+        description={topic.description}
+      />
 
       <WriteForm topicId={topic.id} />
 

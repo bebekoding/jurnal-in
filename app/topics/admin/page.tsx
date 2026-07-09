@@ -96,7 +96,7 @@ export default function TopicsAdminPage() {
             </label>
             <span className="text-xs text-ink/50">
               Format: <code>Title</code> atau{" "}
-              <code>Title | Deskripsi opsional</code>
+              <code>Title | Judul Indonesia | Deskripsi</code>
             </span>
           </div>
           <textarea

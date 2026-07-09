@@ -25,6 +25,7 @@ model Journal {
 model Topic {
   id           String    @id @default(cuid())
   title        String
+  titleId      String?
   description  String?
   scheduledFor DateTime  @db.Date
   createdAt    DateTime  @default(now())
