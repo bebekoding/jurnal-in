@@ -27,24 +27,41 @@ export default async function TopicsPage() {
   const topics = seededShuffle(allTopics, today).slice(0, DAILY_COUNT);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <section className="text-center py-6">
-        <p className="text-xs uppercase tracking-widest text-ink/50 mb-2">
-          Random Topics
-        </p>
-        <h1 className="font-serif text-4xl font-bold tracking-tight">
-          Topik hari ini
-        </h1>
-        <p className="mt-2 text-ink/60 text-sm">
-          {formatDateLong(today)} · 3 topik random dari {allTopics.length} pool.
-          Setoran min 4 paragraf & 200 kata.
-        </p>
-      </section>
+    <div className="space-y-14">
+      <header className="grid md:grid-cols-12 gap-8 items-end border-b border-ink pb-8">
+        <div className="md:col-span-8">
+          <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[0.95] tracking-tight text-ink">
+            Tiga topik
+            <br />
+            <span className="italic font-reading font-normal">random</span>
+            <span> untuk hari ini.</span>
+          </h1>
+          <p className="mt-5 max-w-lg text-ink-muted text-[15px] leading-relaxed">
+            Pilih satu, tulis argumen kamu dalam bahasa Inggris. Minimum
+            empat paragraf dan dua ratus kata. Topik berganti otomatis
+            setiap hari.
+          </p>
+        </div>
+        <div className="md:col-span-4 text-sm tabular text-ink-muted">
+          <div className="flex justify-between border-b border-rule py-1.5">
+            <span>Tanggal</span>
+            <span className="text-ink">{formatDateLong(today)}</span>
+          </div>
+          <div className="flex justify-between border-b border-rule py-1.5">
+            <span>Pool</span>
+            <span className="text-ink">{allTopics.length} topik</span>
+          </div>
+          <div className="flex justify-between border-b border-rule py-1.5">
+            <span>Ditampilkan</span>
+            <span className="text-ink">{topics.length} dari pool</span>
+          </div>
+        </div>
+      </header>
 
       {topics.length === 0 ? (
-        <div className="border border-dashed border-ink/20 rounded-lg p-10 text-center text-ink/60">
+        <div className="py-20 text-center text-ink-muted">
           Belum ada topik di pool. Admin bisa tambah lewat{" "}
-          <Link href="/topics/admin" className="text-accent underline">
+          <Link href="/topics/admin" className="link">
             /topics/admin
           </Link>
           .
@@ -53,12 +70,13 @@ export default async function TopicsPage() {
         <TopicsList topics={topics} />
       )}
 
-      <div className="text-center pt-4">
+      <div className="border-t border-rule pt-6">
         <Link
           href="/topics/archive"
-          className="text-sm text-accent hover:underline"
+          className="text-sm text-ink-muted hover:text-accent transition inline-flex items-center gap-1.5"
         >
-          Lihat semua topik di pool →
+          Lihat semua topik di pool
+          <span aria-hidden>→</span>
         </Link>
       </div>
     </div>

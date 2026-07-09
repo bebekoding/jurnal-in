@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, ChatCircleText } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import ReviewForm from "./ReviewForm";
 
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 function formatDate(d: Date) {
   return new Date(d).toLocaleString("en-GB", {
     day: "numeric",
-    month: "short",
+    month: "long",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -37,67 +38,109 @@ export default async function JournalDetailPage({
   if (!journal) notFound();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      <div>
-        <Link href="/" className="text-sm text-ink/60 hover:text-accent">
-          ← Semua jurnal
+    <div className="grid md:grid-cols-12 gap-10">
+      <div className="md:col-span-8 space-y-10">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
+        >
+          <ArrowLeft size={14} weight="regular" />
+          Semua tulisan
         </Link>
-      </div>
 
-      <article className="bg-white border border-ink/10 rounded-lg p-6 md:p-8">
-        <div className="flex items-center justify-between text-xs text-ink/50 mb-3">
-          <span>
-            oleh <b className="text-ink/80">{journal.authorName}</b> ·{" "}
-            {formatDate(journal.createdAt)}
-          </span>
-          <span>{wordCount(journal.content)} kata</span>
-        </div>
-        {journal.topic && (
-          <div className="mb-3 inline-block bg-indigo-50 text-accent border border-indigo-100 text-xs px-2 py-1 rounded-full">
-            Random Topic
-          </div>
-        )}
-        <h1 className="font-serif text-3xl font-bold leading-tight mb-3">
-          {journal.title}
-        </h1>
-        {journal.topic?.description && (
-          <p className="text-sm text-ink/60 mb-4 italic">
-            {journal.topic.description}
-          </p>
-        )}
-        <div className="prose-journal">{journal.content}</div>
-      </article>
-
-      <section>
-        <h2 className="font-serif text-xl font-semibold mb-3">
-          Review dari teman ({journal.reviews.length})
-        </h2>
-        <div className="space-y-3">
-          {journal.reviews.length === 0 && (
-            <p className="text-sm text-ink/50 italic">
-              Belum ada review. Jadi yang pertama kasih feedback.
+        <article>
+          {journal.topic && (
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-widest text-accent">
+                Random Topic
+              </span>
+            </div>
+          )}
+          <h1 className="font-display text-4xl md:text-5xl leading-[1.05] tracking-tight text-ink">
+            {journal.title}
+          </h1>
+          {journal.topic?.description && (
+            <p className="mt-4 font-reading italic text-lg text-ink-muted leading-relaxed max-w-2xl">
+              {journal.topic.description}
             </p>
           )}
-          {journal.reviews.map((r) => (
-            <div
-              key={r.id}
-              className="border border-ink/10 rounded-lg p-4 bg-white"
-            >
-              <div className="flex items-center justify-between text-xs text-ink/50 mb-1">
-                <b className="text-ink/80">{r.authorName}</b>
-                <span>{formatDate(r.createdAt)}</span>
+
+          <div className="mt-6 pb-6 border-b border-ink flex flex-wrap items-center gap-x-6 gap-y-2 text-xs tabular text-ink-subtle">
+            <span>
+              Oleh <span className="text-ink">{journal.authorName}</span>
+            </span>
+            <span>{formatDate(journal.createdAt)}</span>
+            <span>{wordCount(journal.content)} kata</span>
+          </div>
+
+          <div className="prose-journal mt-10 max-w-none">
+            {journal.content}
+          </div>
+        </article>
+
+        <section className="pt-8 border-t border-rule">
+          <div className="flex items-baseline gap-2 mb-6">
+            <ChatCircleText size={18} weight="regular" className="text-ink" />
+            <h2 className="font-display text-xl text-ink">
+              Review dari peserta
+            </h2>
+            <span className="text-xs text-ink-subtle tabular ml-1">
+              ({journal.reviews.length})
+            </span>
+          </div>
+
+          {journal.reviews.length === 0 ? (
+            <p className="text-sm text-ink-subtle italic">
+              Belum ada review. Jadi yang pertama kasih feedback.
+            </p>
+          ) : (
+            <ul className="space-y-6">
+              {journal.reviews.map((r) => (
+                <li key={r.id} className="border-l-2 border-rule pl-4">
+                  <div className="flex items-baseline justify-between text-xs tabular text-ink-subtle mb-1">
+                    <span className="text-ink font-medium">{r.authorName}</span>
+                    <span>{formatDate(r.createdAt)}</span>
+                  </div>
+                  <p className="text-[15px] whitespace-pre-wrap leading-relaxed text-ink">
+                    {r.comment}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-8">
+            <ReviewForm journalId={journal.id} />
+          </div>
+        </section>
+      </div>
+
+      <aside className="md:col-span-4">
+        <div className="md:sticky md:top-24 space-y-4 border-t border-ink pt-4 text-sm">
+          <div className="flex justify-between tabular">
+            <span className="text-ink-muted">Penulis</span>
+            <span className="text-ink">{journal.authorName}</span>
+          </div>
+          <div className="flex justify-between tabular">
+            <span className="text-ink-muted">Kata</span>
+            <span className="text-ink">{wordCount(journal.content)}</span>
+          </div>
+          <div className="flex justify-between tabular">
+            <span className="text-ink-muted">Review</span>
+            <span className="text-ink">{journal.reviews.length}</span>
+          </div>
+          {journal.topic && (
+            <div className="pt-4 border-t border-rule">
+              <div className="text-xs uppercase tracking-widest text-ink-subtle mb-2">
+                Dari topik
               </div>
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                {r.comment}
+              <p className="font-reading italic text-ink-muted leading-relaxed">
+                {journal.topic.title}
               </p>
             </div>
-          ))}
+          )}
         </div>
-
-        <div className="mt-4">
-          <ReviewForm journalId={journal.id} />
-        </div>
-      </section>
+      </aside>
     </div>
   );
 }

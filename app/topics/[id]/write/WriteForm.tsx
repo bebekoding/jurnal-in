@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle, Circle } from "@phosphor-icons/react";
 import { PARTICIPANTS } from "@/lib/participants";
 
 const MIN_WORDS = 200;
@@ -44,12 +45,12 @@ export default function WriteForm({ topicId }: { topicId: string }) {
       return;
     }
     if (!wordsOK) {
-      setError(`Minimal ${MIN_WORDS} kata (baru ${words}).`);
+      setError(`Minimum ${MIN_WORDS} kata (baru ${words}).`);
       return;
     }
     if (!parasOK) {
       setError(
-        `Minimal ${MIN_PARAGRAPHS} paragraf (baru ${paras}). Pisahkan paragraf dengan baris kosong.`
+        `Minimum ${MIN_PARAGRAPHS} paragraf (baru ${paras}). Pisahkan paragraf dengan baris kosong.`
       );
       return;
     }
@@ -75,15 +76,17 @@ export default function WriteForm({ topicId }: { topicId: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">Nama</label>
+    <form onSubmit={submit} className="space-y-8">
+      <div className="pb-6 border-b border-rule">
+        <label className="block text-xs uppercase tracking-widest text-ink-subtle mb-2">
+          Penulis
+        </label>
         <select
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none bg-white"
+          className="w-full max-w-xs h-11 px-3 text-sm"
         >
-          <option value="">— pilih nama —</option>
+          <option value="">Pilih nama</option>
           {PARTICIPANTS.map((p) => (
             <option key={p} value={p}>
               {p}
@@ -93,41 +96,60 @@ export default function WriteForm({ topicId }: { topicId: string }) {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="text-sm font-medium">Tulisan kamu</label>
-          <div className="text-xs flex gap-3">
-            <span className={wordsOK ? "text-emerald-700" : "text-ink/60"}>
-              {wordsOK ? "✓" : "•"} {words}/{MIN_WORDS} kata
+        <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
+          <label className="text-xs uppercase tracking-widest text-ink-subtle">
+            Tulisan kamu
+          </label>
+          <div className="flex items-center gap-5 text-xs tabular">
+            <span
+              className={`inline-flex items-center gap-1 ${
+                wordsOK ? "text-ink" : "text-ink-muted"
+              }`}
+            >
+              {wordsOK ? (
+                <CheckCircle size={14} weight="fill" />
+              ) : (
+                <Circle size={14} weight="regular" />
+              )}
+              {words} / {MIN_WORDS} kata
             </span>
-            <span className={parasOK ? "text-emerald-700" : "text-ink/60"}>
-              {parasOK ? "✓" : "•"} {paras}/{MIN_PARAGRAPHS} paragraf
+            <span
+              className={`inline-flex items-center gap-1 ${
+                parasOK ? "text-ink" : "text-ink-muted"
+              }`}
+            >
+              {parasOK ? (
+                <CheckCircle size={14} weight="fill" />
+              ) : (
+                <Circle size={14} weight="regular" />
+              )}
+              {paras} / {MIN_PARAGRAPHS} paragraf
             </span>
           </div>
         </div>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={18}
-          className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none font-serif leading-relaxed"
-          placeholder="Tulis argumenmu di sini. Pisahkan tiap paragraf dengan baris kosong (dua kali enter)."
+          rows={20}
+          className="w-full px-4 py-4 font-reading text-[17px] leading-[1.65]"
+          placeholder="Tulis argumen kamu di sini. Pisahkan tiap paragraf dengan baris kosong (dua kali enter)."
         />
-        <p className="mt-1 text-xs text-ink/50">
-          Minimal {MIN_PARAGRAPHS} paragraf & {MIN_WORDS} kata. Struktur ideal:
-          intro → 2 body paragraf → kesimpulan.
+        <p className="mt-2 text-xs text-ink-subtle">
+          Struktur ideal: intro, dua paragraf isi, kesimpulan.
         </p>
       </div>
 
       {error && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+        <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink">
           {error}
         </div>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="pt-4 border-t border-rule">
         <button
           type="submit"
           disabled={submitting}
-          className="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent transition disabled:opacity-50"
+          className="inline-flex items-center gap-2 bg-ink text-paper px-6 h-11 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
         >
           {submitting ? "Menyimpan…" : "Setor jawaban"}
         </button>

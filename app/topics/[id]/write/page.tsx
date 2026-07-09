@@ -1,10 +1,18 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import WriteForm from "./WriteForm";
 import TopicHeader from "./TopicHeader";
 
 export const dynamic = "force-dynamic";
+
+function formatShort(d: Date) {
+  return new Date(d).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+  });
+}
 
 export default async function WriteTopicPage({
   params,
@@ -31,12 +39,14 @@ export default async function WriteTopicPage({
   if (!topic) notFound();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <Link href="/topics" className="text-sm text-ink/60 hover:text-accent">
-          ← Kembali ke topik hari ini
-        </Link>
-      </div>
+    <div className="max-w-3xl space-y-10">
+      <Link
+        href="/topics"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
+      >
+        <ArrowLeft size={14} weight="regular" />
+        Kembali ke topik hari ini
+      </Link>
 
       <TopicHeader
         title={topic.title}
@@ -47,28 +57,23 @@ export default async function WriteTopicPage({
       <WriteForm topicId={topic.id} />
 
       {topic.journals.length > 0 && (
-        <section>
-          <h2 className="font-serif text-lg font-semibold mb-3">
+        <section className="pt-6 border-t border-ink">
+          <h2 className="font-display text-lg text-ink mb-4">
             Setoran peserta ({topic.journals.length})
           </h2>
-          <ul className="space-y-2">
+          <ul className="divide-y divide-rule">
             {topic.journals.map((j) => (
               <li key={j.id}>
                 <Link
                   href={`/journals/${j.id}`}
-                  className="block border border-ink/10 rounded-md p-3 bg-white hover:border-accent text-sm"
+                  className="grid grid-cols-12 gap-4 py-4 hover:bg-paper-raised -mx-2 px-2 transition"
                 >
-                  <div className="flex items-center justify-between">
-                    <b className="text-ink/80">{j.authorName}</b>
-                    <span className="text-xs text-ink/50">
-                      {new Date(j.createdAt).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                      })}
-                    </span>
+                  <div className="col-span-3 text-xs tabular text-ink-subtle">
+                    <div className="text-ink">{j.authorName}</div>
+                    <div className="mt-0.5">{formatShort(j.createdAt)}</div>
                   </div>
-                  <p className="text-ink/60 text-xs mt-1 line-clamp-2">
-                    {j.content.slice(0, 160)}…
+                  <p className="col-span-9 text-sm text-ink-muted font-reading leading-relaxed line-clamp-2">
+                    {j.content.slice(0, 220)}
                   </p>
                 </Link>
               </li>

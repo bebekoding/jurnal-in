@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { bricolage, newsreader } from "./fonts";
+import { Nav } from "@/components/Nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jurnal.in — IELTS Writing Practice Journal",
+  title: "Jurnal.in / IELTS Writing Study Group",
   description:
-    "Latihan writing IELTS lewat journaling harian. Baca jurnal teman, review bareng, dan dapat analisis dari Claude.",
+    "Buku catatan bersama untuk latihan writing IELTS. Setor jurnal harian, jawab topik, tukar review.",
 };
 
 export default function RootLayout({
@@ -14,24 +16,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <header className="border-b border-ink/10 bg-paper/80 backdrop-blur sticky top-0 z-10">
-          <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="font-serif text-2xl font-bold tracking-tight">
-              Jurnal<span className="text-accent">.in</span>
+    <html lang="id" className={`${bricolage.variable} ${newsreader.variable}`}>
+      <body className="font-sans">
+        <header className="border-b border-rule bg-paper/85 backdrop-blur sticky top-0 z-30">
+          <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-baseline gap-1 font-display text-lg text-ink"
+            >
+              <span className="tracking-tight">Jurnal</span>
+              <span className="text-accent">.in</span>
             </Link>
-            <nav className="flex gap-4 md:gap-6 text-sm">
-              <Link href="/" className="hover:text-accent">Beranda</Link>
-              <Link href="/new" className="hover:text-accent">Jurnal</Link>
-              <Link href="/topics" className="hover:text-accent">Topik</Link>
-              <Link href="/export" className="hover:text-accent">Export</Link>
-            </nav>
+            <Nav />
           </div>
         </header>
-        <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
-        <footer className="max-w-5xl mx-auto px-4 py-8 text-xs text-ink/50">
-          Dibangun untuk latihan IELTS Writing. Export bulk → paste ke Claude chat untuk review.
+
+        <main className="max-w-6xl mx-auto px-6 py-14 md:py-20">{children}</main>
+
+        <footer className="border-t border-rule mt-24">
+          <div className="max-w-6xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-ink-subtle">
+            <div className="tabular">
+              9 penulis · Ivan, Rafa, Fadli, Adhy, Robi, Maul, Rully, Frans,
+              Yogi
+            </div>
+            <div>
+              Rekap bulk siap-paste ke Claude chat untuk review.
+            </div>
+          </div>
         </footer>
       </body>
     </html>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Copy, Check, FileText } from "@phosphor-icons/react";
 
 const PARTICIPANTS = [
   "Ivan",
@@ -24,38 +25,38 @@ type Journal = {
 
 const REVIEW_PROMPT = `You are an experienced IELTS Writing examiner. Below are journal entries from a study group practicing IELTS-style writing. For each entry, respond in this format:
 
-### {number}. {Author} — {Date}
+### {number}. {Author}, {Date}
 
-**Estimated band scores** (0.0–9.0, half-band increments):
+Estimated band scores (0.0 to 9.0, half-band increments):
 - Task Response: X.X
-- Coherence & Cohesion: X.X
+- Coherence and Cohesion: X.X
 - Lexical Resource: X.X
-- Grammatical Range & Accuracy: X.X
-- **Overall: X.X**
+- Grammatical Range and Accuracy: X.X
+- Overall: X.X
 
-**Top grammar corrections** (up to 6, quote original → corrected + brief why):
-- "..." → "..." — reason
+Top grammar corrections (up to 6, quote original then corrected with a brief reason):
+- "..." to "..." because ...
 
-**Vocabulary upgrades to band 7–9** (up to 6, quote original → suggestion + brief reason):
-- "..." → "..." — reason
+Vocabulary upgrades to band 7 to 9 (up to 6, quote original then suggestion with a brief reason):
+- "..." to "..." because ...
 
-**Structure & coherence feedback** (2–3 sentences):
+Structure and coherence feedback (2 to 3 sentences):
 ...
 
-**Improved version at band 8** (preserve the writer's ideas & voice, rewrite the whole entry):
+Improved version at band 8 (preserve the writer's ideas and voice, rewrite the whole entry):
 ...
 
-Be honest but encouraging. Use Indonesian for the reason/explanation parts if you like, but keep quotes and improved version in English.
+Be honest but encouraging. Use Indonesian for the reason and explanation parts if you like, but keep quotes and improved version in English.
 
 ---
 
 `;
 
 function ymd(d: Date) {
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
+  return `${y}-${m}-${dd}`;
 }
 
 function daysAgo(n: number) {
@@ -126,7 +127,7 @@ export default function ExportPage() {
         const wc = wordCount(j.content);
         const sc = sentenceCount(j.content);
         const date = formatDateLong(new Date(j.createdAt));
-        return `### ${i + 1}. ${j.authorName} — ${date} (${wc} words, ${sc} sentences)\n\n${j.content.trim()}`;
+        return `### ${i + 1}. ${j.authorName}, ${date} (${wc} words, ${sc} sentences)\n\n${j.content.trim()}`;
       })
       .join("\n\n---\n\n");
     return header + entries;
@@ -145,40 +146,67 @@ export default function ExportPage() {
   const totalWords = filtered.reduce((s, j) => s + wordCount(j.content), 0);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="font-serif text-3xl font-bold mb-2">Export bulk</h1>
-        <p className="text-ink/60 text-sm">
-          Filter rentang tanggal & peserta, klik <b>Copy</b>, paste ke Claude
-          chat untuk minta review IELTS lengkap.
-        </p>
-      </div>
+    <div className="space-y-10">
+      <header className="grid md:grid-cols-12 gap-8 border-b border-ink pb-8">
+        <div className="md:col-span-8">
+          <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
+            Rekap bulk.
+          </h1>
+          <p className="mt-4 max-w-lg text-ink-muted text-[15px] leading-relaxed">
+            Filter rentang tanggal dan peserta, klik copy, paste ke Claude
+            chat untuk minta review IELTS lengkap. Konsumsi Pro subscription,
+            bukan API credit.
+          </p>
+        </div>
+        <div className="md:col-span-4 text-sm">
+          <div className="flex justify-between border-b border-rule py-1.5 tabular">
+            <span className="text-ink-muted">Sumber jurnal</span>
+            <span className="text-ink">{journals.length} entri</span>
+          </div>
+          <div className="flex justify-between border-b border-rule py-1.5 tabular">
+            <span className="text-ink-muted">Terpilih</span>
+            <span className="text-ink">{filtered.length} entri</span>
+          </div>
+          <div className="flex justify-between border-b border-rule py-1.5 tabular">
+            <span className="text-ink-muted">Total kata</span>
+            <span className="text-ink">
+              {totalWords.toLocaleString("id-ID")}
+            </span>
+          </div>
+        </div>
+      </header>
 
-      <div className="border border-ink/10 rounded-lg p-4 bg-white grid grid-cols-1 md:grid-cols-4 gap-3">
+      <section className="grid md:grid-cols-4 gap-4">
         <div>
-          <label className="block text-xs font-medium mb-1">Dari tanggal</label>
+          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+            Dari
+          </label>
           <input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="w-full px-2 py-1.5 text-sm border border-ink/20 rounded-md bg-white"
+            className="w-full h-10 px-2 text-sm tabular"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Sampai tanggal</label>
+          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+            Sampai
+          </label>
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="w-full px-2 py-1.5 text-sm border border-ink/20 rounded-md bg-white"
+            className="w-full h-10 px-2 text-sm tabular"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium mb-1">Peserta</label>
+          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+            Peserta
+          </label>
           <select
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
-            className="w-full px-2 py-1.5 text-sm border border-ink/20 rounded-md bg-white"
+            className="w-full h-10 px-2 text-sm"
           >
             <option value="Semua">Semua</option>
             {PARTICIPANTS.map((p) => (
@@ -189,55 +217,68 @@ export default function ExportPage() {
           </select>
         </div>
         <div className="flex items-end">
-          <label className="flex items-center gap-2 text-xs">
+          <label className="flex items-center gap-2 text-sm text-ink-muted">
             <input
               type="checkbox"
               checked={includePrompt}
               onChange={(e) => setIncludePrompt(e.target.checked)}
+              className="accent-ink"
             />
             Sertakan prompt review
           </label>
         </div>
-      </div>
-
-      <div className="flex items-center justify-between text-sm">
-        <div className="text-ink/70">
-          {loading
-            ? "Memuat…"
-            : `${filtered.length} jurnal · ${totalWords} kata total`}
-        </div>
-        <button
-          onClick={copyToClipboard}
-          disabled={loading || filtered.length === 0}
-          className="bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-accent transition disabled:opacity-50"
-        >
-          {copied ? "✓ Tersalin" : "📋 Copy ke clipboard"}
-        </button>
-      </div>
+      </section>
 
       {error && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+        <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink">
           {error}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium mb-1">Preview</label>
+      <section>
+        <div className="flex items-baseline justify-between border-b border-ink pb-3 mb-2">
+          <div className="flex items-baseline gap-2">
+            <FileText size={16} weight="regular" className="text-ink" />
+            <h2 className="font-display text-lg text-ink">Preview keluaran</h2>
+          </div>
+          <button
+            onClick={copyToClipboard}
+            disabled={loading || filtered.length === 0}
+            className="inline-flex items-center gap-2 bg-ink text-paper px-4 h-10 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
+          >
+            {copied ? (
+              <>
+                <Check size={14} weight="bold" />
+                Tersalin
+              </>
+            ) : (
+              <>
+                <Copy size={14} weight="regular" />
+                Copy ke clipboard
+              </>
+            )}
+          </button>
+        </div>
         <textarea
           value={output}
           readOnly
           rows={22}
-          className="w-full px-3 py-2 border border-ink/20 rounded-md font-mono text-xs leading-relaxed bg-white"
-          placeholder={loading ? "Memuat jurnal…" : "Tidak ada jurnal di rentang ini."}
+          className="w-full px-4 py-3 font-mono text-xs leading-relaxed bg-paper-raised"
+          placeholder={
+            loading ? "Memuat jurnal…" : "Tidak ada jurnal di rentang ini."
+          }
         />
-      </div>
+      </section>
 
-      <div className="text-xs text-ink/50 bg-amber-50 border border-amber-200 rounded p-3">
-        <b>Cara pakai:</b> buka Claude chat (claude.ai) → paste hasil di atas →
-        Claude akan kasih band score + koreksi grammar + upgrade vocabulary + versi
-        perbaikan untuk setiap jurnal. Kalau jurnal banyak, split per batch 3–5
-        jurnal biar respons tidak kepotong.
-      </div>
+      <section className="border-l-2 border-ink pl-4 py-2 text-sm text-ink-muted">
+        <p>
+          <span className="text-ink font-medium">Cara pakai.</span> Buka
+          claude.ai, paste hasil di atas. Claude akan kasih band score,
+          koreksi grammar, upgrade vocabulary, dan versi perbaikan setiap
+          entri. Kalau jurnal banyak, split per batch 3 sampai 5 entri biar
+          respons tidak kepotong.
+        </p>
+      </section>
     </div>
   );
 }

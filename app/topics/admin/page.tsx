@@ -41,73 +41,79 @@ export default function TopicsAdminPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="font-serif text-3xl font-bold mb-1">
-          Admin — Tambah topik ke pool
+    <div className="max-w-3xl space-y-10">
+      <header className="border-b border-ink pb-6">
+        <div className="text-[10px] uppercase tracking-widest text-ink-subtle mb-3">
+          Admin
+        </div>
+        <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
+          Tambah topik ke pool.
         </h1>
-        <p className="text-ink/60 text-sm">
-          Paste topik satu per baris. Semua masuk ke pool; sistem pilih 3
-          random tiap hari (deterministik per tanggal).
+        <p className="mt-4 max-w-lg text-ink-muted text-[15px] leading-relaxed">
+          Paste satu topik per baris. Semua masuk ke pool. Sistem pilih tiga
+          random per hari, deterministik per tanggal.
         </p>
-      </div>
+      </header>
 
-      <form onSubmit={submit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">
+      <form onSubmit={submit} className="space-y-8">
+        <div className="pb-6 border-b border-rule">
+          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
             Password admin
           </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none"
-            placeholder="Isi kalau ADMIN_PASSWORD di-set"
+            className="w-full max-w-xs h-10 px-3 text-sm"
+            placeholder="Kalau ADMIN_PASSWORD di-set"
           />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-sm font-medium">
+          <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
+            <label className="text-[11px] uppercase tracking-widest text-ink-subtle">
               Topik ({lines.length} baris)
             </label>
-            <span className="text-xs text-ink/50">
-              Format: <code>Title</code> atau{" "}
-              <code>Title | Judul Indonesia | Deskripsi</code>
+            <span className="text-xs text-ink-subtle">
+              Format:{" "}
+              <code className="font-mono text-ink">Title</code> atau{" "}
+              <code className="font-mono text-ink">
+                Title | Judul ID | Deskripsi
+              </code>
             </span>
           </div>
           <textarea
             value={raw}
             onChange={(e) => setRaw(e.target.value)}
             rows={16}
-            className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none font-mono text-xs leading-relaxed"
+            className="w-full px-4 py-3 font-mono text-xs leading-relaxed"
             placeholder={`Contoh:
 Should schools teach civic values? | Apakah sekolah harus mengajarkan nilai kewarganegaraan?
 Remote work advantages and disadvantages | Kelebihan dan kekurangan kerja jarak jauh
-Impact of social media on teenagers | Dampak media sosial pada remaja
-...
 `}
           />
         </div>
 
         {error && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3 whitespace-pre-wrap">
+          <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink whitespace-pre-wrap">
             {error}
           </div>
         )}
         {result && (
-          <div className="text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 rounded p-3">
-            ✓ {result.inserted} topik masuk pool.
+          <div className="border-l-2 border-ink bg-paper-raised px-4 py-3 text-sm text-ink">
+            {result.inserted} topik masuk pool.
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent transition disabled:opacity-50"
-        >
-          {submitting ? "Menyimpan…" : "Tambah ke pool"}
-        </button>
+        <div className="pt-4 border-t border-rule">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex items-center gap-2 bg-ink text-paper px-6 h-11 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
+          >
+            {submitting ? "Menyimpan…" : "Tambah ke pool"}
+          </button>
+        </div>
       </form>
     </div>
   );

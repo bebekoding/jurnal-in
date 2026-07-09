@@ -2,18 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-const PARTICIPANTS = [
-  "Ivan",
-  "Rafa",
-  "Fadli",
-  "Adhy",
-  "Robi",
-  "Maul",
-  "Rully",
-  "Frans",
-  "Yogi",
-];
+import Link from "next/link";
+import { CheckCircle, Circle, ArrowLeft } from "@phosphor-icons/react";
+import { PARTICIPANTS } from "@/lib/participants";
 
 function todayISO() {
   const d = new Date();
@@ -38,6 +29,8 @@ function countSentences(text: string) {
   return matches ? matches.length : 0;
 }
 
+const MIN_SENTENCES = 5;
+
 export default function NewJournalPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -48,11 +41,14 @@ export default function NewJournalPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("jurnal.name");
-    if (saved && PARTICIPANTS.includes(saved)) setName(saved);
+    if (saved && (PARTICIPANTS as readonly string[]).includes(saved)) {
+      setName(saved);
+    }
   }, []);
 
   const words = content.trim().split(/\s+/).filter(Boolean).length;
   const sentences = countSentences(content);
+  const sentencesOK = sentences >= MIN_SENTENCES;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,9 +57,9 @@ export default function NewJournalPage() {
       setError("Nama, tanggal, dan isi jurnal wajib diisi.");
       return;
     }
-    if (sentences < 5) {
+    if (!sentencesOK) {
       setError(
-        `Minimal 5 kalimat (baru ${sentences} kalimat terdeteksi). Pastikan setiap kalimat diakhiri titik/tanda seru/tanya.`
+        `Minimal ${MIN_SENTENCES} kalimat (baru ${sentences} kalimat terdeteksi). Pastikan setiap kalimat diakhiri titik, tanda seru, atau tanda tanya.`
       );
       return;
     }
@@ -89,23 +85,39 @@ export default function NewJournalPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h1 className="font-serif text-3xl font-bold mb-2">Tulis jurnal hari ini</h1>
-      <p className="text-ink/60 text-sm mb-6">
-        Cerita bebas tentang kejadian pribadi hari ini. Tulis dalam bahasa
-        Inggris, minimal 5 kalimat.
+    <div className="max-w-3xl">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition mb-8"
+      >
+        <ArrowLeft size={14} weight="regular" />
+        Kembali ke feed
+      </Link>
+
+      <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
+        Jurnal bebas.
+      </h1>
+      <p className="mt-4 text-ink-muted text-[15px] leading-relaxed max-w-lg">
+        Cerita bebas tentang harimu. Tulis dalam bahasa Inggris. Minimum lima
+        kalimat. Kalau bingung mau nulis apa, coba{" "}
+        <Link href="/topics" className="link">
+          topik hari ini
+        </Link>
+        .
       </p>
 
-      <form onSubmit={submit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={submit} className="mt-10 space-y-8">
+        <div className="grid md:grid-cols-2 gap-6 pb-6 border-b border-rule">
           <div>
-            <label className="block text-sm font-medium mb-1">Nama</label>
+            <label className="block text-xs uppercase tracking-widest text-ink-subtle mb-2">
+              Penulis
+            </label>
             <select
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none bg-white"
+              className="w-full h-11 px-3 text-sm"
             >
-              <option value="">— pilih nama —</option>
+              <option value="">Pilih nama</option>
               {PARTICIPANTS.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -114,46 +126,64 @@ export default function NewJournalPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Tanggal</label>
+            <label className="block text-xs uppercase tracking-widest text-ink-subtle mb-2">
+              Tanggal
+            </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none bg-white"
+              className="w-full h-11 px-3 text-sm tabular"
             />
           </div>
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Isi jurnal ({words} kata · {sentences} kalimat)
-          </label>
+          <div className="flex items-baseline justify-between mb-2">
+            <label className="text-xs uppercase tracking-widest text-ink-subtle">
+              Tulisan kamu
+            </label>
+            <div className="flex items-center gap-4 text-xs tabular">
+              <span className="text-ink-muted">{words} kata</span>
+              <span
+                className={`inline-flex items-center gap-1 ${
+                  sentencesOK ? "text-ink" : "text-ink-muted"
+                }`}
+              >
+                {sentencesOK ? (
+                  <CheckCircle size={14} weight="fill" />
+                ) : (
+                  <Circle size={14} weight="regular" />
+                )}
+                {sentences} / {MIN_SENTENCES} kalimat
+              </span>
+            </div>
+          </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            rows={16}
-            className="w-full px-3 py-2 border border-ink/20 rounded-md focus:border-accent focus:outline-none font-serif leading-relaxed"
+            rows={18}
+            className="w-full px-4 py-4 font-reading text-[17px] leading-[1.6]"
             placeholder="Tell a story about your day..."
           />
-          <p className="mt-1 text-xs text-ink/50">
-            Minimal 5 kalimat. Pisahkan tiap kalimat dengan titik (.), tanda seru
-            (!), atau tanda tanya (?).
-          </p>
         </div>
+
         {error && (
-          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+          <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink">
             {error}
           </div>
         )}
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-4 pt-4 border-t border-rule">
           <button
             type="submit"
             disabled={submitting}
-            className="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-accent transition disabled:opacity-50"
+            className="inline-flex items-center gap-2 bg-ink text-paper px-6 h-11 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
           >
             {submitting ? "Menyimpan…" : "Setor jurnal"}
           </button>
-          <span className="text-xs text-ink/50">
-            Kamu bisa analisis dengan Claude setelah jurnal disimpan.
+          <span className="text-xs text-ink-subtle">
+            Muncul di feed setelah tersimpan.
           </span>
         </div>
       </form>

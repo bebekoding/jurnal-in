@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Translate } from "@phosphor-icons/react";
 
 export default function TopicHeader({
   title,
@@ -14,35 +15,38 @@ export default function TopicHeader({
   const [show, setShow] = useState(false);
 
   return (
-    <section className="border border-ink/10 rounded-lg p-6 bg-white">
-      <div className="flex items-start justify-between gap-3 mb-1">
-        <div className="text-xs uppercase tracking-widest text-accent">
+    <section className="border-y border-ink py-8">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <span className="text-[10px] uppercase tracking-widest text-ink-subtle">
           Topik
-        </div>
+        </span>
         {titleId && (
           <button
             type="button"
             onClick={() => setShow(!show)}
-            className={`text-[11px] px-2 py-1 rounded-full border transition ${
+            className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 h-7 border transition ${
               show
-                ? "bg-accent text-white border-accent"
-                : "bg-white text-ink/60 border-ink/20 hover:border-accent hover:text-accent"
+                ? "bg-ink text-paper border-ink"
+                : "bg-paper-raised text-ink-muted border-rule hover:border-ink hover:text-ink"
             }`}
           >
-            {show ? "🇬🇧 EN" : "🇮🇩 Terjemah"}
+            <Translate size={12} weight="regular" />
+            {show ? "EN" : "ID"}
           </button>
         )}
       </div>
-      <h1 className="font-serif text-2xl font-bold leading-snug mb-2">
+      <h1 className="font-display text-2xl md:text-3xl leading-tight text-ink max-w-2xl">
         {title}
       </h1>
       {show && titleId && (
-        <p className="text-sm text-ink/60 italic border-l-2 border-indigo-200 pl-3 mb-2">
+        <p className="mt-4 pt-4 border-t border-rule font-reading italic text-[17px] text-ink-muted leading-relaxed max-w-2xl">
           {titleId}
         </p>
       )}
       {description && (
-        <p className="text-sm text-ink/70 leading-relaxed">{description}</p>
+        <p className="mt-4 text-sm text-ink-muted leading-relaxed max-w-2xl">
+          {description}
+        </p>
       )}
     </section>
   );

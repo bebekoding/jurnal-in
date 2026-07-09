@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PARTICIPANTS } from "@/lib/participants";
 
 export default function ReviewForm({ journalId }: { journalId: string }) {
   const router = useRouter();
@@ -12,7 +13,9 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("jurnal.name");
-    if (saved) setName(saved);
+    if (saved && (PARTICIPANTS as readonly string[]).includes(saved)) {
+      setName(saved);
+    }
   }, []);
 
   async function submit(e: React.FormEvent) {
@@ -41,34 +44,56 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="border border-ink/10 rounded-lg p-4 bg-white space-y-3">
-      <div>
-        <label className="block text-xs font-medium mb-1">Nama kamu</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-ink/20 rounded-md focus:border-accent focus:outline-none"
-          placeholder="Nama"
-        />
+    <form
+      onSubmit={submit}
+      className="border border-rule bg-paper-raised p-5 space-y-4"
+    >
+      <div className="grid md:grid-cols-4 gap-4">
+        <div className="md:col-span-1">
+          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+            Kamu
+          </label>
+          <select
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full h-10 px-2 text-sm"
+          >
+            <option value="">Pilih nama</option>
+            {PARTICIPANTS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="md:col-span-3">
+          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+            Feedback
+          </label>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={3}
+            className="w-full px-3 py-2 text-sm leading-relaxed"
+            placeholder="Kasih feedback yang membangun."
+          />
+        </div>
       </div>
-      <div>
-        <label className="block text-xs font-medium mb-1">Review / feedback</label>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          rows={3}
-          className="w-full px-3 py-2 text-sm border border-ink/20 rounded-md focus:border-accent focus:outline-none"
-          placeholder="Kasih feedback yang membangun…"
-        />
+      {error && (
+        <div className="text-xs text-accent">{error}</div>
+      )}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-ink-subtle">
+          Feedback muncul di bawah tulisan.
+        </span>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="inline-flex items-center gap-2 bg-ink text-paper px-4 h-10 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
+        >
+          {submitting ? "Mengirim…" : "Kirim review"}
+        </button>
       </div>
-      {error && <div className="text-xs text-red-700">{error}</div>}
-      <button
-        type="submit"
-        disabled={submitting}
-        className="bg-ink text-paper px-4 py-2 rounded-full text-sm font-medium hover:bg-accent transition disabled:opacity-50"
-      >
-        {submitting ? "Mengirim…" : "Kirim review"}
-      </button>
     </form>
   );
 }

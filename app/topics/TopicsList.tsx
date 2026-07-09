@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Translate, ArrowRight } from "@phosphor-icons/react";
 
 type Topic = {
   id: string;
@@ -16,57 +17,70 @@ export default function TopicsList({ topics }: { topics: Topic[] }) {
   const hasAnyTranslation = topics.some((t) => t.titleId);
 
   return (
-    <>
+    <div>
       {hasAnyTranslation && (
-        <div className="flex justify-end -mt-4 mb-2">
+        <div className="flex justify-end mb-4">
           <button
             onClick={() => setShowTranslation(!showTranslation)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition ${
+            className={`inline-flex items-center gap-1.5 text-xs px-3 h-8 border transition ${
               showTranslation
-                ? "bg-accent text-white border-accent"
-                : "bg-white text-ink/60 border-ink/20 hover:border-accent hover:text-accent"
+                ? "bg-ink text-paper border-ink"
+                : "bg-paper-raised text-ink-muted border-rule hover:border-ink hover:text-ink"
             }`}
           >
-            {showTranslation ? "🇬🇧 Sembunyikan terjemahan" : "🇮🇩 Tampilkan terjemahan"}
+            <Translate size={14} weight="regular" />
+            {showTranslation ? "Sembunyikan Indonesia" : "Tampilkan Indonesia"}
           </button>
         </div>
       )}
 
-      <ul className="grid gap-4 md:grid-cols-3">
+      <ul className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-rule border-y border-rule">
         {topics.map((t, i) => (
-          <li key={t.id}>
-            <div className="border border-ink/10 rounded-lg p-5 bg-white h-full flex flex-col">
-              <div className="text-xs text-accent uppercase tracking-widest mb-2">
-                Topik {i + 1}
+          <li
+            key={t.id}
+            className="group relative bg-paper-raised md:bg-transparent"
+          >
+            <Link
+              href={`/topics/${t.id}/write`}
+              className="flex flex-col h-full p-6 md:p-8 hover:bg-paper-raised transition"
+            >
+              <div className="flex items-baseline justify-between mb-6">
+                <span className="font-display text-5xl text-ink tabular">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-ink-subtle tabular">
+                  {t._count.journals} setoran
+                </span>
               </div>
-              <h2 className="font-serif text-lg font-semibold leading-snug mb-2">
+
+              <h3 className="font-display text-lg leading-snug text-ink group-hover:text-accent transition">
                 {t.title}
-              </h2>
+              </h3>
+
               {showTranslation && t.titleId && (
-                <p className="text-sm text-ink/60 italic border-l-2 border-indigo-200 pl-3 mb-2">
+                <p className="mt-3 pt-3 border-t border-rule text-sm text-ink-muted font-reading italic leading-relaxed">
                   {t.titleId}
                 </p>
               )}
+
               {t.description && (
-                <p className="text-sm text-ink/70 leading-relaxed mb-3">
+                <p className="mt-3 text-sm text-ink-muted leading-relaxed">
                   {t.description}
                 </p>
               )}
-              <div className="mt-auto pt-3 flex items-center justify-between text-xs">
-                <span className="text-ink/50">
-                  ✍️ {t._count.journals} setoran
-                </span>
-                <Link
-                  href={`/topics/${t.id}/write`}
-                  className="bg-ink text-paper px-3 py-1.5 rounded-full font-medium hover:bg-accent transition"
-                >
-                  Tulis →
-                </Link>
+
+              <div className="mt-auto pt-6 flex items-center gap-1.5 text-sm text-ink group-hover:text-accent transition">
+                Tulis jawaban
+                <ArrowRight
+                  size={14}
+                  weight="regular"
+                  className="group-hover:translate-x-0.5 transition"
+                />
               </div>
-            </div>
+            </Link>
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }
