@@ -1,19 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Copy, Check, FileText } from "@phosphor-icons/react";
-
-const PARTICIPANTS = [
-  "Ivan",
-  "Rafa",
-  "Fadli",
-  "Adhy",
-  "Robi",
-  "Maul",
-  "Rully",
-  "Frans",
-  "Yogi",
-];
+import { Copy, Check } from "@phosphor-icons/react";
+import { PARTICIPANTS } from "@/lib/participants";
 
 type Journal = {
   id: string;
@@ -146,39 +135,30 @@ export default function ExportPage() {
   const totalWords = filtered.reduce((s, j) => s + wordCount(j.content), 0);
 
   return (
-    <div className="space-y-10">
-      <header className="grid md:grid-cols-12 gap-8 border-b border-ink pb-8">
-        <div className="md:col-span-8">
-          <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
-            Rekap bulk.
-          </h1>
-          <p className="mt-4 max-w-lg text-ink-muted text-[15px] leading-relaxed">
-            Filter rentang tanggal dan peserta, klik copy, paste ke Claude
-            chat untuk minta review IELTS lengkap. Konsumsi Pro subscription,
-            bukan API credit.
-          </p>
-        </div>
-        <div className="md:col-span-4 text-sm">
-          <div className="flex justify-between border-b border-rule py-1.5 tabular">
-            <span className="text-ink-muted">Sumber jurnal</span>
-            <span className="text-ink">{journals.length} entri</span>
-          </div>
-          <div className="flex justify-between border-b border-rule py-1.5 tabular">
-            <span className="text-ink-muted">Terpilih</span>
-            <span className="text-ink">{filtered.length} entri</span>
-          </div>
-          <div className="flex justify-between border-b border-rule py-1.5 tabular">
-            <span className="text-ink-muted">Total kata</span>
-            <span className="text-ink">
-              {totalWords.toLocaleString("id-ID")}
-            </span>
-          </div>
-        </div>
+    <div className="space-y-8">
+      <header>
+        <h1
+          className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink"
+          data-reveal
+        >
+          Rekap.
+        </h1>
+        <p
+          className="mt-3 text-ink-muted text-[15px]"
+          data-reveal
+          style={{ "--d": "90ms" } as React.CSSProperties}
+        >
+          Filter, copy, paste ke Claude chat untuk review lengkap.
+        </p>
       </header>
 
-      <section className="grid md:grid-cols-4 gap-4">
+      <section
+        className="card p-5 grid md:grid-cols-4 gap-4"
+        data-reveal
+        style={{ "--d": "180ms" } as React.CSSProperties}
+      >
         <div>
-          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
             Dari
           </label>
           <input
@@ -189,7 +169,7 @@ export default function ExportPage() {
           />
         </div>
         <div>
-          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
             Sampai
           </label>
           <input
@@ -200,7 +180,7 @@ export default function ExportPage() {
           />
         </div>
         <div>
-          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
             Peserta
           </label>
           <select
@@ -216,35 +196,36 @@ export default function ExportPage() {
             ))}
           </select>
         </div>
-        <div className="flex items-end">
+        <div className="flex items-end pb-1">
           <label className="flex items-center gap-2 text-sm text-ink-muted">
             <input
               type="checkbox"
               checked={includePrompt}
               onChange={(e) => setIncludePrompt(e.target.checked)}
-              className="accent-ink"
+              className="accent-[#1d2b1f] w-4 h-4"
             />
-            Sertakan prompt review
+            Sertakan prompt
           </label>
         </div>
       </section>
 
       {error && (
-        <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink">
+        <div className="card bg-accent-soft px-4 py-3 text-sm text-ink">
           {error}
         </div>
       )}
 
-      <section>
-        <div className="flex items-baseline justify-between border-b border-ink pb-3 mb-2">
-          <div className="flex items-baseline gap-2">
-            <FileText size={16} weight="regular" className="text-ink" />
-            <h2 className="font-display text-lg text-ink">Preview keluaran</h2>
-          </div>
+      <section data-reveal style={{ "--d": "260ms" } as React.CSSProperties}>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-ink-muted tabular">
+            {loading
+              ? "Memuat…"
+              : `${filtered.length} entri · ${totalWords.toLocaleString("id-ID")} kata`}
+          </span>
           <button
             onClick={copyToClipboard}
             disabled={loading || filtered.length === 0}
-            className="inline-flex items-center gap-2 bg-ink text-paper px-4 h-10 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
+            className="btn btn-primary h-10"
           >
             {copied ? (
               <>
@@ -253,8 +234,8 @@ export default function ExportPage() {
               </>
             ) : (
               <>
-                <Copy size={14} weight="regular" />
-                Copy ke clipboard
+                <Copy size={14} weight="bold" />
+                Copy
               </>
             )}
           </button>
@@ -262,22 +243,10 @@ export default function ExportPage() {
         <textarea
           value={output}
           readOnly
-          rows={22}
-          className="w-full px-4 py-3 font-mono text-xs leading-relaxed bg-paper-raised"
-          placeholder={
-            loading ? "Memuat jurnal…" : "Tidak ada jurnal di rentang ini."
-          }
+          rows={20}
+          className="w-full px-4 py-3 font-mono text-xs leading-relaxed"
+          placeholder={loading ? "Memuat…" : "Tidak ada jurnal di rentang ini."}
         />
-      </section>
-
-      <section className="border-l-2 border-ink pl-4 py-2 text-sm text-ink-muted">
-        <p>
-          <span className="text-ink font-medium">Cara pakai.</span> Buka
-          claude.ai, paste hasil di atas. Claude akan kasih band score,
-          koreksi grammar, upgrade vocabulary, dan versi perbaikan setiap
-          entri. Kalau jurnal banyak, split per batch 3 sampai 5 entri biar
-          respons tidak kepotong.
-        </p>
       </section>
     </div>
   );

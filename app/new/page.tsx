@@ -59,7 +59,7 @@ export default function NewJournalPage() {
     }
     if (!sentencesOK) {
       setError(
-        `Minimal ${MIN_SENTENCES} kalimat (baru ${sentences} kalimat terdeteksi). Pastikan setiap kalimat diakhiri titik, tanda seru, atau tanda tanya.`
+        `Minimal ${MIN_SENTENCES} kalimat (baru ${sentences}). Akhiri kalimat dengan titik, tanda seru, atau tanda tanya.`
       );
       return;
     }
@@ -90,26 +90,33 @@ export default function NewJournalPage() {
         href="/"
         className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition mb-8"
       >
-        <ArrowLeft size={14} weight="regular" />
-        Kembali ke feed
+        <ArrowLeft size={14} weight="bold" />
+        Feed
       </Link>
 
-      <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
+      <h1
+        className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink"
+        data-reveal
+      >
         Jurnal bebas.
       </h1>
-      <p className="mt-4 text-ink-muted text-[15px] leading-relaxed max-w-lg">
-        Cerita bebas tentang harimu. Tulis dalam bahasa Inggris. Minimum lima
-        kalimat. Kalau bingung mau nulis apa, coba{" "}
-        <Link href="/topics" className="link">
-          topik hari ini
-        </Link>
-        .
+      <p
+        className="mt-3 text-ink-muted text-[15px]"
+        data-reveal
+        style={{ "--d": "90ms" } as React.CSSProperties}
+      >
+        Cerita harimu dalam bahasa Inggris, minimum lima kalimat.
       </p>
 
-      <form onSubmit={submit} className="mt-10 space-y-8">
-        <div className="grid md:grid-cols-2 gap-6 pb-6 border-b border-rule">
+      <form
+        onSubmit={submit}
+        className="mt-10 space-y-7"
+        data-reveal
+        style={{ "--d": "180ms" } as React.CSSProperties}
+      >
+        <div className="grid md:grid-cols-2 gap-5">
           <div>
-            <label className="block text-xs uppercase tracking-widest text-ink-subtle mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
               Penulis
             </label>
             <select
@@ -126,7 +133,7 @@ export default function NewJournalPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-widest text-ink-subtle mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
               Tanggal
             </label>
             <input
@@ -140,52 +147,43 @@ export default function NewJournalPage() {
 
         <div>
           <div className="flex items-baseline justify-between mb-2">
-            <label className="text-xs uppercase tracking-widest text-ink-subtle">
-              Tulisan kamu
+            <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              Tulisan
             </label>
             <div className="flex items-center gap-4 text-xs tabular">
               <span className="text-ink-muted">{words} kata</span>
               <span
-                className={`inline-flex items-center gap-1 ${
+                className={`inline-flex items-center gap-1 font-semibold ${
                   sentencesOK ? "text-ink" : "text-ink-muted"
                 }`}
               >
                 {sentencesOK ? (
-                  <CheckCircle size={14} weight="fill" />
+                  <CheckCircle size={14} weight="fill" className="text-accent" />
                 ) : (
                   <Circle size={14} weight="regular" />
                 )}
-                {sentences} / {MIN_SENTENCES} kalimat
+                {sentences}/{MIN_SENTENCES} kalimat
               </span>
             </div>
           </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            rows={18}
+            rows={16}
             className="w-full px-4 py-4 font-reading text-[17px] leading-[1.6]"
             placeholder="Tell a story about your day..."
           />
         </div>
 
         {error && (
-          <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink">
+          <div className="card bg-accent-soft px-4 py-3 text-sm text-ink">
             {error}
           </div>
         )}
 
-        <div className="flex items-center gap-4 pt-4 border-t border-rule">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="inline-flex items-center gap-2 bg-ink text-paper px-6 h-11 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
-          >
-            {submitting ? "Menyimpan…" : "Setor jurnal"}
-          </button>
-          <span className="text-xs text-ink-subtle">
-            Muncul di feed setelah tersimpan.
-          </span>
-        </div>
+        <button type="submit" disabled={submitting} className="btn btn-primary">
+          {submitting ? "Menyimpan…" : "Setor jurnal"}
+        </button>
       </form>
     </div>
   );

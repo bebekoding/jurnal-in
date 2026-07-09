@@ -76,9 +76,14 @@ export default function WriteForm({ topicId }: { topicId: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-8">
-      <div className="pb-6 border-b border-rule">
-        <label className="block text-xs uppercase tracking-widest text-ink-subtle mb-2">
+    <form
+      onSubmit={submit}
+      className="space-y-7"
+      data-reveal
+      style={{ "--d": "120ms" } as React.CSSProperties}
+    >
+      <div>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
           Penulis
         </label>
         <select
@@ -97,63 +102,54 @@ export default function WriteForm({ topicId }: { topicId: string }) {
 
       <div>
         <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
-          <label className="text-xs uppercase tracking-widest text-ink-subtle">
-            Tulisan kamu
+          <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+            Tulisan
           </label>
           <div className="flex items-center gap-5 text-xs tabular">
             <span
-              className={`inline-flex items-center gap-1 ${
+              className={`inline-flex items-center gap-1 font-semibold ${
                 wordsOK ? "text-ink" : "text-ink-muted"
               }`}
             >
               {wordsOK ? (
-                <CheckCircle size={14} weight="fill" />
+                <CheckCircle size={14} weight="fill" className="text-accent" />
               ) : (
                 <Circle size={14} weight="regular" />
               )}
-              {words} / {MIN_WORDS} kata
+              {words}/{MIN_WORDS} kata
             </span>
             <span
-              className={`inline-flex items-center gap-1 ${
+              className={`inline-flex items-center gap-1 font-semibold ${
                 parasOK ? "text-ink" : "text-ink-muted"
               }`}
             >
               {parasOK ? (
-                <CheckCircle size={14} weight="fill" />
+                <CheckCircle size={14} weight="fill" className="text-accent" />
               ) : (
                 <Circle size={14} weight="regular" />
               )}
-              {paras} / {MIN_PARAGRAPHS} paragraf
+              {paras}/{MIN_PARAGRAPHS} paragraf
             </span>
           </div>
         </div>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={20}
+          rows={18}
           className="w-full px-4 py-4 font-reading text-[17px] leading-[1.65]"
-          placeholder="Tulis argumen kamu di sini. Pisahkan tiap paragraf dengan baris kosong (dua kali enter)."
+          placeholder="Pisahkan tiap paragraf dengan baris kosong."
         />
-        <p className="mt-2 text-xs text-ink-subtle">
-          Struktur ideal: intro, dua paragraf isi, kesimpulan.
-        </p>
       </div>
 
       {error && (
-        <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink">
+        <div className="card bg-accent-soft px-4 py-3 text-sm text-ink">
           {error}
         </div>
       )}
 
-      <div className="pt-4 border-t border-rule">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="inline-flex items-center gap-2 bg-ink text-paper px-6 h-11 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
-        >
-          {submitting ? "Menyimpan…" : "Setor jawaban"}
-        </button>
-      </div>
+      <button type="submit" disabled={submitting} className="btn btn-primary">
+        {submitting ? "Menyimpan…" : "Setor jawaban"}
+      </button>
     </form>
   );
 }

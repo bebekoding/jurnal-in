@@ -41,23 +41,27 @@ export default function TopicsAdminPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-10">
-      <header className="border-b border-ink pb-6">
-        <div className="text-[10px] uppercase tracking-widest text-ink-subtle mb-3">
-          Admin
-        </div>
+    <div className="max-w-3xl space-y-8">
+      <header data-reveal>
         <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
-          Tambah topik ke pool.
+          Tambah topik.
         </h1>
-        <p className="mt-4 max-w-lg text-ink-muted text-[15px] leading-relaxed">
-          Paste satu topik per baris. Semua masuk ke pool. Sistem pilih tiga
-          random per hari, deterministik per tanggal.
+        <p className="mt-3 text-ink-muted text-[15px]">
+          Satu topik per baris. Format:{" "}
+          <code className="font-mono text-ink text-xs">
+            Title | Judul ID | Deskripsi
+          </code>
         </p>
       </header>
 
-      <form onSubmit={submit} className="space-y-8">
-        <div className="pb-6 border-b border-rule">
-          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+      <form
+        onSubmit={submit}
+        className="space-y-6"
+        data-reveal
+        style={{ "--d": "120ms" } as React.CSSProperties}
+      >
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
             Password admin
           </label>
           <input
@@ -65,55 +69,35 @@ export default function TopicsAdminPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full max-w-xs h-10 px-3 text-sm"
-            placeholder="Kalau ADMIN_PASSWORD di-set"
           />
         </div>
 
         <div>
-          <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
-            <label className="text-[11px] uppercase tracking-widest text-ink-subtle">
-              Topik ({lines.length} baris)
-            </label>
-            <span className="text-xs text-ink-subtle">
-              Format:{" "}
-              <code className="font-mono text-ink">Title</code> atau{" "}
-              <code className="font-mono text-ink">
-                Title | Judul ID | Deskripsi
-              </code>
-            </span>
-          </div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
+            Topik ({lines.length} baris)
+          </label>
           <textarea
             value={raw}
             onChange={(e) => setRaw(e.target.value)}
-            rows={16}
+            rows={14}
             className="w-full px-4 py-3 font-mono text-xs leading-relaxed"
-            placeholder={`Contoh:
-Should schools teach civic values? | Apakah sekolah harus mengajarkan nilai kewarganegaraan?
-Remote work advantages and disadvantages | Kelebihan dan kekurangan kerja jarak jauh
-`}
           />
         </div>
 
         {error && (
-          <div className="border-l-2 border-accent bg-accent-soft px-4 py-3 text-sm text-ink whitespace-pre-wrap">
+          <div className="card bg-accent-soft px-4 py-3 text-sm text-ink whitespace-pre-wrap">
             {error}
           </div>
         )}
         {result && (
-          <div className="border-l-2 border-ink bg-paper-raised px-4 py-3 text-sm text-ink">
+          <div className="card bg-lime-soft px-4 py-3 text-sm text-ink font-semibold">
             {result.inserted} topik masuk pool.
           </div>
         )}
 
-        <div className="pt-4 border-t border-rule">
-          <button
-            type="submit"
-            disabled={submitting}
-            className="inline-flex items-center gap-2 bg-ink text-paper px-6 h-11 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
-          >
-            {submitting ? "Menyimpan…" : "Tambah ke pool"}
-          </button>
-        </div>
+        <button type="submit" disabled={submitting} className="btn btn-primary">
+          {submitting ? "Menyimpan…" : "Tambah ke pool"}
+        </button>
       </form>
     </div>
   );

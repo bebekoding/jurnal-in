@@ -19,21 +19,20 @@ export function Nav() {
   }
 
   return (
-    <nav className="flex items-center gap-6 md:gap-8 text-sm">
+    <nav className="flex items-center gap-1 md:gap-2 text-sm">
       {ITEMS.map((item) => {
         const active = isActive(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`relative py-1 transition ${
-              active ? "text-ink" : "text-ink-muted hover:text-ink"
+            className={`px-3 h-8 inline-flex items-center rounded-full font-medium transition ${
+              active
+                ? "bg-lime text-ink border border-ink shadow-hard-sm"
+                : "text-ink-muted hover:text-ink"
             }`}
           >
             {item.label}
-            {active && (
-              <span className="absolute left-0 right-0 -bottom-[2px] h-[2px] bg-accent" />
-            )}
           </Link>
         );
       })}

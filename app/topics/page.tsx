@@ -27,40 +27,43 @@ export default async function TopicsPage() {
   const topics = seededShuffle(allTopics, today).slice(0, DAILY_COUNT);
 
   return (
-    <div className="space-y-14">
-      <header className="grid md:grid-cols-12 gap-8 items-end border-b border-ink pb-8">
-        <div className="md:col-span-8">
-          <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[0.95] tracking-tight text-ink">
-            Tiga topik
-            <br />
-            <span className="italic font-reading font-normal">random</span>
-            <span> untuk hari ini.</span>
+    <div className="space-y-10">
+      <header className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[0.98] tracking-tight text-ink">
+            <span className="block" data-reveal>
+              Tiga topik
+            </span>
+            <span
+              className="block"
+              data-reveal
+              style={{ "--d": "90ms" } as React.CSSProperties}
+            >
+              <span className="italic font-reading font-medium">random</span>{" "}
+              hari ini.
+            </span>
           </h1>
-          <p className="mt-5 max-w-lg text-ink-muted text-[15px] leading-relaxed">
-            Pilih satu, tulis argumen kamu dalam bahasa Inggris. Minimum
-            empat paragraf dan dua ratus kata. Topik berganti otomatis
-            setiap hari.
+          <p
+            className="mt-4 text-ink-muted text-[15px]"
+            data-reveal
+            style={{ "--d": "180ms" } as React.CSSProperties}
+          >
+            Pilih satu. Minimum empat paragraf, 200 kata, bahasa Inggris.
           </p>
         </div>
-        <div className="md:col-span-4 text-sm tabular text-ink-muted">
-          <div className="flex justify-between border-b border-rule py-1.5">
-            <span>Tanggal</span>
-            <span className="text-ink">{formatDateLong(today)}</span>
-          </div>
-          <div className="flex justify-between border-b border-rule py-1.5">
-            <span>Pool</span>
-            <span className="text-ink">{allTopics.length} topik</span>
-          </div>
-          <div className="flex justify-between border-b border-rule py-1.5">
-            <span>Ditampilkan</span>
-            <span className="text-ink">{topics.length} dari pool</span>
-          </div>
+        <div
+          className="card px-5 py-3 text-sm tabular"
+          data-reveal
+          style={{ "--d": "260ms" } as React.CSSProperties}
+        >
+          <span className="text-ink font-semibold">{formatDateLong(today)}</span>
+          <span className="text-ink-muted"> · pool {allTopics.length} topik</span>
         </div>
       </header>
 
       {topics.length === 0 ? (
-        <div className="py-20 text-center text-ink-muted">
-          Belum ada topik di pool. Admin bisa tambah lewat{" "}
+        <div className="card p-10 text-center text-ink-muted" data-reveal>
+          Pool kosong. Tambah lewat{" "}
           <Link href="/topics/admin" className="link">
             /topics/admin
           </Link>
@@ -70,13 +73,9 @@ export default async function TopicsPage() {
         <TopicsList topics={topics} />
       )}
 
-      <div className="border-t border-rule pt-6">
-        <Link
-          href="/topics/archive"
-          className="text-sm text-ink-muted hover:text-accent transition inline-flex items-center gap-1.5"
-        >
-          Lihat semua topik di pool
-          <span aria-hidden>→</span>
+      <div data-reveal>
+        <Link href="/topics/archive" className="link text-sm">
+          Semua topik di pool →
         </Link>
       </div>
     </div>

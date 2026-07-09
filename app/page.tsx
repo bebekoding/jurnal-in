@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, PencilSimpleLine, Target } from "@phosphor-icons/react/dist/ssr";
+import { PencilSimpleLine, Target } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -8,11 +8,10 @@ function formatDate(d: Date) {
   return new Date(d).toLocaleDateString("id-ID", {
     day: "numeric",
     month: "short",
-    year: "numeric",
   });
 }
 
-function excerpt(text: string, n = 260) {
+function excerpt(text: string, n = 200) {
   const clean = text.replace(/\s+/g, " ").trim();
   return clean.length > n ? clean.slice(0, n) + "…" : clean;
 }
@@ -60,48 +59,55 @@ export default async function HomePage() {
   const distinctAuthors = new Set(journals.map((j) => j.authorName)).size;
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-14">
       <section className="grid md:grid-cols-12 gap-8 items-end">
         <div className="md:col-span-8">
-          <h1 className="font-display text-[clamp(2.75rem,6vw,5rem)] leading-[0.95] tracking-tight text-ink">
-            Buku catatan
-            <br />
-            <span className="italic font-reading font-normal">
+          <h1 className="font-display text-[clamp(2.75rem,6vw,5rem)] leading-[0.98] tracking-tight text-ink">
+            <span className="block" data-reveal>
+              Buku catatan
+            </span>
+            <span
+              className="block italic font-reading font-medium"
+              data-reveal
+              style={{ "--d": "90ms" } as React.CSSProperties}
+            >
               untuk latihan
             </span>
-            <br />
-            writing IELTS.
+            <span
+              className="block"
+              data-reveal
+              style={{ "--d": "180ms" } as React.CSSProperties}
+            >
+              writing IELTS.
+            </span>
           </h1>
-          <p className="mt-6 max-w-lg text-ink-muted text-[15px] leading-relaxed">
-            Setor jurnal harian, jawab topik random, tukar review antar peserta.
-            Semua tulisan ke-rekap dan siap dipaste ke Claude untuk audit
-            grammar dan upgrade kosakata ke band 7 hingga 9.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/new"
-              className="inline-flex items-center gap-2 bg-ink text-paper px-5 h-11 text-sm font-medium hover:bg-accent transition"
-            >
-              <PencilSimpleLine size={16} weight="regular" />
-              Tulis jurnal harian
+          <div
+            className="mt-8 flex flex-wrap items-center gap-4"
+            data-reveal
+            style={{ "--d": "280ms" } as React.CSSProperties}
+          >
+            <Link href="/new" className="btn btn-primary">
+              <PencilSimpleLine size={16} weight="bold" />
+              Tulis jurnal
             </Link>
-            <Link
-              href="/topics"
-              className="inline-flex items-center gap-2 border border-ink px-5 h-11 text-sm font-medium hover:border-accent hover:text-accent transition"
-            >
-              <Target size={16} weight="regular" />
-              Jawab topik hari ini
+            <Link href="/topics" className="btn btn-secondary">
+              <Target size={16} weight="bold" />
+              Topik hari ini
             </Link>
           </div>
         </div>
 
-        <aside className="md:col-span-4 border-t border-ink pt-6 md:border-t md:pt-6">
+        <aside
+          className="md:col-span-4 card p-6"
+          data-reveal
+          style={{ "--d": "360ms" } as React.CSSProperties}
+        >
           <div className="grid grid-cols-3 gap-4 tabular">
             <div>
               <div className="font-display text-3xl text-ink">
                 {journals.length}
               </div>
-              <div className="text-[11px] uppercase tracking-wider text-ink-subtle mt-1">
+              <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
                 Tulisan
               </div>
             </div>
@@ -109,7 +115,7 @@ export default async function HomePage() {
               <div className="font-display text-3xl text-ink">
                 {totalWords.toLocaleString("id-ID")}
               </div>
-              <div className="text-[11px] uppercase tracking-wider text-ink-subtle mt-1">
+              <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
                 Kata
               </div>
             </div>
@@ -117,7 +123,7 @@ export default async function HomePage() {
               <div className="font-display text-3xl text-ink">
                 {distinctAuthors}
               </div>
-              <div className="text-[11px] uppercase tracking-wider text-ink-subtle mt-1">
+              <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
                 Penulis
               </div>
             </div>
@@ -126,53 +132,53 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <div className="flex items-baseline justify-between border-b border-ink pb-3 mb-2">
+        <div
+          className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
+          data-reveal
+        >
           <h2 className="font-display text-xl text-ink">Tulisan terbaru</h2>
-          <span className="text-xs text-ink-subtle tabular">
-            {journals.length.toString().padStart(2, "0")} entri
+          <span className="text-xs text-ink-muted tabular">
+            {journals.length} entri
           </span>
         </div>
 
         {journals.length === 0 ? (
-          <div className="py-16 text-center text-ink-muted">
-            Belum ada yang setor. Jadi yang pertama,{" "}
+          <div className="card p-10 text-center text-ink-muted" data-reveal>
+            Belum ada yang setor.{" "}
             <Link href="/new" className="link">
-              tulis sekarang
+              Tulis sekarang
             </Link>
             .
           </div>
         ) : (
-          <ul className="divide-y divide-rule">
-            {journals.map((j) => (
-              <li key={j.id}>
-                <Link
-                  href={`/journals/${j.id}`}
-                  className="group grid md:grid-cols-12 gap-4 py-6 hover:bg-paper-sunken/50 -mx-2 px-2 transition"
-                >
-                  <div className="md:col-span-2 text-xs text-ink-subtle tabular pt-1">
-                    <div>{formatDate(j.createdAt)}</div>
-                    <div className="mt-0.5 text-ink-muted">{j.authorName}</div>
+          <ul className="grid gap-5 md:grid-cols-2">
+            {journals.map((j, i) => (
+              <li
+                key={j.id}
+                data-reveal
+                style={{ "--d": `${(i % 4) * 70}ms` } as React.CSSProperties}
+              >
+                <Link href={`/journals/${j.id}`} className="card block p-6 h-full">
+                  <div className="flex items-center justify-between text-xs text-ink-muted tabular mb-3">
+                    <span className="font-semibold text-ink">
+                      {j.authorName}
+                    </span>
+                    <span>{formatDate(j.createdAt)}</span>
                   </div>
-                  <div className="md:col-span-8">
-                    {j.topic && (
-                      <div className="text-[10px] uppercase tracking-widest text-accent mb-1.5">
-                        Topik
-                      </div>
-                    )}
-                    <h3 className="font-display text-xl md:text-2xl text-ink leading-tight group-hover:text-accent transition">
-                      {j.title}
-                    </h3>
-                    <p className="mt-2 font-reading text-[15px] text-ink-muted leading-relaxed">
-                      {excerpt(j.content)}
-                    </p>
-                  </div>
-                  <div className="md:col-span-2 flex md:justify-end items-start pt-1">
-                    <div className="text-xs text-ink-subtle tabular text-right">
-                      <div className="text-ink">{wordCount(j.content)} kata</div>
-                      <div className="mt-0.5">
-                        {j._count.reviews} review
-                      </div>
-                    </div>
+                  {j.topic && (
+                    <span className="inline-block text-[10px] uppercase tracking-widest font-semibold text-accent mb-1.5">
+                      Topik
+                    </span>
+                  )}
+                  <h3 className="font-display text-xl text-ink leading-tight">
+                    {j.title}
+                  </h3>
+                  <p className="mt-2 font-reading text-[15px] text-ink-muted leading-relaxed">
+                    {excerpt(j.content)}
+                  </p>
+                  <div className="mt-4 pt-3 border-t border-ink/15 flex justify-between text-xs text-ink-muted tabular">
+                    <span>{wordCount(j.content)} kata</span>
+                    <span>{j._count.reviews} review</span>
                   </div>
                 </Link>
               </li>

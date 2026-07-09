@@ -39,13 +39,13 @@ export default async function WriteTopicPage({
   if (!topic) notFound();
 
   return (
-    <div className="max-w-3xl space-y-10">
+    <div className="max-w-3xl space-y-8">
       <Link
         href="/topics"
         className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
       >
-        <ArrowLeft size={14} weight="regular" />
-        Kembali ke topik hari ini
+        <ArrowLeft size={14} weight="bold" />
+        Topik hari ini
       </Link>
 
       <TopicHeader
@@ -57,22 +57,26 @@ export default async function WriteTopicPage({
       <WriteForm topicId={topic.id} />
 
       {topic.journals.length > 0 && (
-        <section className="pt-6 border-t border-ink">
+        <section data-reveal>
           <h2 className="font-display text-lg text-ink mb-4">
-            Setoran peserta ({topic.journals.length})
+            Setoran ({topic.journals.length})
           </h2>
-          <ul className="divide-y divide-rule">
+          <ul className="grid gap-4">
             {topic.journals.map((j) => (
               <li key={j.id}>
                 <Link
                   href={`/journals/${j.id}`}
-                  className="grid grid-cols-12 gap-4 py-4 hover:bg-paper-raised -mx-2 px-2 transition"
+                  className="card block p-4"
                 >
-                  <div className="col-span-3 text-xs tabular text-ink-subtle">
-                    <div className="text-ink">{j.authorName}</div>
-                    <div className="mt-0.5">{formatShort(j.createdAt)}</div>
+                  <div className="flex items-baseline justify-between text-xs tabular mb-1.5">
+                    <span className="font-semibold text-ink">
+                      {j.authorName}
+                    </span>
+                    <span className="text-ink-muted">
+                      {formatShort(j.createdAt)}
+                    </span>
                   </div>
-                  <p className="col-span-9 text-sm text-ink-muted font-reading leading-relaxed line-clamp-2">
+                  <p className="text-sm text-ink-muted font-reading leading-relaxed line-clamp-2">
                     {j.content.slice(0, 220)}
                   </p>
                 </Link>

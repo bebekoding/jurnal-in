@@ -44,13 +44,10 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className="border border-rule bg-paper-raised p-5 space-y-4"
-    >
+    <form onSubmit={submit} className="card bg-lime-soft p-5 space-y-4">
       <div className="grid md:grid-cols-4 gap-4">
-        <div className="md:col-span-1">
-          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+        <div>
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
             Kamu
           </label>
           <select
@@ -67,7 +64,7 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
           </select>
         </div>
         <div className="md:col-span-3">
-          <label className="block text-[11px] uppercase tracking-widest text-ink-subtle mb-1.5">
+          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
             Feedback
           </label>
           <textarea
@@ -75,25 +72,13 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
             onChange={(e) => setComment(e.target.value)}
             rows={3}
             className="w-full px-3 py-2 text-sm leading-relaxed"
-            placeholder="Kasih feedback yang membangun."
           />
         </div>
       </div>
-      {error && (
-        <div className="text-xs text-accent">{error}</div>
-      )}
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] text-ink-subtle">
-          Feedback muncul di bawah tulisan.
-        </span>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="inline-flex items-center gap-2 bg-ink text-paper px-4 h-10 text-sm font-medium hover:bg-accent transition disabled:opacity-40"
-        >
-          {submitting ? "Mengirim…" : "Kirim review"}
-        </button>
-      </div>
+      {error && <div className="text-xs text-accent font-semibold">{error}</div>}
+      <button type="submit" disabled={submitting} className="btn btn-ink h-10">
+        {submitting ? "Mengirim…" : "Kirim review"}
+      </button>
     </form>
   );
 }

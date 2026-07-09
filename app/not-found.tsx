@@ -2,15 +2,10 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="max-w-xl py-20">
-      <div className="font-display text-6xl text-ink leading-none">404.</div>
-      <h1 className="mt-6 font-display text-2xl text-ink">
-        Halaman tidak ditemukan.
-      </h1>
-      <p className="mt-2 text-ink-muted">
-        Mungkin sudah dihapus atau URL salah.
-      </p>
-      <Link href="/" className="link mt-6 inline-block">
+    <div className="max-w-xl py-16">
+      <div className="font-display text-7xl text-ink leading-none">404</div>
+      <p className="mt-4 text-ink-muted">Halaman tidak ditemukan.</p>
+      <Link href="/" className="btn btn-primary mt-8">
         Kembali ke feed
       </Link>
     </div>
