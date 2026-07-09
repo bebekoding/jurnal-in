@@ -4,15 +4,24 @@ import { PARTICIPANTS } from "@/lib/participants";
 import { paragraphCount, sentenceCount } from "@/lib/text";
 
 export async function GET() {
-  const journals = await prisma.journal.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: { select: { reviews: true } },
-      topic: { select: { id: true, title: true } },
-    },
-    take: 100,
-  });
-  return NextResponse.json(journals);
+  try {
+    const journals = await prisma.journal.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: { select: { reviews: true } },
+        topic: { select: { id: true, title: true } },
+      },
+      take: 100,
+    });
+    return NextResponse.json(journals);
+  } catch {
+    const journals = await prisma.journal.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { reviews: true } } },
+      take: 100,
+    });
+    return NextResponse.json(journals);
+  }
 }
 
 export async function POST(req: Request) {

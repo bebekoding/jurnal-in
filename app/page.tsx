@@ -21,7 +21,7 @@ function wordCount(text: string) {
 }
 
 export default async function HomePage() {
-  const journals = await prisma.journal
+  let journals: any[] = await prisma.journal
     .findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -30,7 +30,17 @@ export default async function HomePage() {
       },
       take: 50,
     })
-    .catch(() => []);
+    .catch(() => null as any);
+
+  if (journals === null) {
+    journals = await prisma.journal
+      .findMany({
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { reviews: true } } },
+        take: 50,
+      })
+      .catch(() => []);
+  }
 
   return (
     <div className="space-y-8">
