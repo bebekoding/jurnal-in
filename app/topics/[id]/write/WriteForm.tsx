@@ -41,16 +41,16 @@ export default function WriteForm({ topicId }: { topicId: string }) {
     e.preventDefault();
     setError(null);
     if (!name.trim() || !content.trim()) {
-      setError("Nama dan isi wajib diisi.");
+      setError("Writer and essay are both required.");
       return;
     }
     if (!wordsOK) {
-      setError(`Minimum ${MIN_WORDS} kata (baru ${words}).`);
+      setError(`At least ${MIN_WORDS} words (${words} so far).`);
       return;
     }
     if (!parasOK) {
       setError(
-        `Minimum ${MIN_PARAGRAPHS} paragraf (baru ${paras}). Pisahkan paragraf dengan baris kosong.`
+        `At least ${MIN_PARAGRAPHS} paragraphs (${paras} so far). Separate paragraphs with a blank line.`
       );
       return;
     }
@@ -70,7 +70,7 @@ export default function WriteForm({ topicId }: { topicId: string }) {
       const data = await res.json();
       router.push(`/journals/${data.id}`);
     } catch (err: any) {
-      setError(err.message || "Gagal menyimpan setoran.");
+      setError(err.message || "Failed to save the essay.");
       setSubmitting(false);
     }
   }
@@ -78,32 +78,14 @@ export default function WriteForm({ topicId }: { topicId: string }) {
   return (
     <form
       onSubmit={submit}
-      className="space-y-7"
+      className="grid md:grid-cols-12 gap-8"
       data-reveal
       style={{ "--d": "120ms" } as React.CSSProperties}
     >
-      <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
-          Penulis
-        </label>
-        <select
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full max-w-xs h-11 px-3 text-sm"
-        >
-          <option value="">Pilih nama</option>
-          {PARTICIPANTS.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
+      <div className="md:col-span-8">
         <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
           <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-            Tulisan
+            Your essay
           </label>
           <div className="flex items-center gap-5 text-xs tabular">
             <span
@@ -116,7 +98,7 @@ export default function WriteForm({ topicId }: { topicId: string }) {
               ) : (
                 <Circle size={14} weight="regular" />
               )}
-              {words}/{MIN_WORDS} kata
+              {words}/{MIN_WORDS} words
             </span>
             <span
               className={`inline-flex items-center gap-1 font-semibold ${
@@ -128,28 +110,54 @@ export default function WriteForm({ topicId }: { topicId: string }) {
               ) : (
                 <Circle size={14} weight="regular" />
               )}
-              {paras}/{MIN_PARAGRAPHS} paragraf
+              {paras}/{MIN_PARAGRAPHS} paragraphs
             </span>
           </div>
         </div>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={18}
-          className="w-full px-4 py-4 font-reading text-[17px] leading-[1.65]"
-          placeholder="Pisahkan tiap paragraf dengan baris kosong."
+          rows={20}
+          className="w-full min-h-[420px] px-4 py-4 font-reading text-[17px] leading-[1.65]"
+          placeholder="Separate each paragraph with a blank line."
         />
       </div>
 
-      {error && (
-        <div className="card bg-accent-soft px-4 py-3 text-sm text-ink">
-          {error}
-        </div>
-      )}
+      <aside className="md:col-span-4">
+        <div className="card p-6 space-y-5 md:sticky md:top-24">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+              Writer
+            </label>
+            <select
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full h-11 px-3 text-sm"
+            >
+              <option value="">Select name</option>
+              {PARTICIPANTS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <button type="submit" disabled={submitting} className="btn btn-primary">
-        {submitting ? "Menyimpan…" : "Setor jawaban"}
-      </button>
+          {error && (
+            <div className="rounded-lg border-[1.5px] border-ink bg-accent-soft px-3 py-2.5 text-sm text-ink">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn btn-primary w-full justify-center"
+          >
+            {submitting ? "Saving…" : "Submit essay"}
+          </button>
+        </div>
+      </aside>
     </form>
   );
 }

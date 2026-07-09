@@ -7,7 +7,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Jurnal.in",
-  description: "Latihan writing IELTS bersama. Jurnal harian, topik random, peer review.",
+  description:
+    "IELTS writing practice, together. Daily journals, random essay topics, peer review.",
 };
 
 export default function RootLayout({
@@ -33,7 +34,7 @@ export default function RootLayout({
         <footer className="border-t-[1.5px] border-ink mt-24 bg-paper-raised">
           <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between text-xs text-ink-muted">
             <span className="font-display text-ink">Jurnal.in</span>
-            <span>Latihan writing IELTS bersama.</span>
+            <span>IELTS writing practice, together.</span>
           </div>
         </footer>
       </body>

@@ -40,7 +40,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   if (!body?.authorName || !body?.content) {
-    return new NextResponse("authorName dan content wajib diisi", {
+    return new NextResponse("Writer and content are required", {
       status: 400,
     });
   }
@@ -48,10 +48,10 @@ export async function POST(req: Request) {
   const authorName = String(body.authorName).slice(0, 60).trim();
   const content = String(body.content).slice(0, 20000).trim();
   if (!authorName || !content) {
-    return new NextResponse("Input tidak valid", { status: 400 });
+    return new NextResponse("Invalid input", { status: 400 });
   }
   if (!(PARTICIPANTS as readonly string[]).includes(authorName)) {
-    return new NextResponse("Nama harus dari daftar peserta", { status: 400 });
+    return new NextResponse("Writer must be one of the participants", { status: 400 });
   }
 
   const topicId: string | undefined = body.topicId;
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       select: { id: true, title: true },
     });
     if (!topic) {
-      return new NextResponse("Topik tidak ditemukan", { status: 404 });
+      return new NextResponse("Topic not found", { status: 404 });
     }
     title = topic.title;
 
@@ -71,27 +71,27 @@ export async function POST(req: Request) {
     const paras = paragraphCount(content);
     if (words < 200) {
       return new NextResponse(
-        `Setoran topik minimal 200 kata (baru ${words}).`,
+        `Essays need at least 200 words (${words} so far).`,
         { status: 400 }
       );
     }
     if (paras < 4) {
       return new NextResponse(
-        `Setoran topik minimal 4 paragraf (baru ${paras}). Pisahkan dengan baris kosong.`,
+        `Essays need at least 4 paragraphs (${paras} so far). Separate paragraphs with a blank line.`,
         { status: 400 }
       );
     }
   } else {
     title = String(body.title || "").slice(0, 200).trim();
     if (!title) {
-      return new NextResponse("Judul wajib diisi untuk jurnal bebas", {
+      return new NextResponse("Title is required for a daily journal", {
         status: 400,
       });
     }
     const sentences = sentenceCount(content);
     if (sentences < 5) {
       return new NextResponse(
-        `Isi jurnal minimal 5 kalimat (baru ${sentences}).`,
+        `Journals need at least 5 sentences (${sentences} so far).`,
         { status: 400 }
       );
     }

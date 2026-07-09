@@ -25,20 +25,20 @@ export default async function TopicsArchivePage() {
         className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
       >
         <ArrowLeft size={14} weight="bold" />
-        Topik hari ini
+        Today&apos;s topic
       </Link>
 
       <header data-reveal>
         <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
-          Pool topik.
+          Topic pool.
         </h1>
         <p className="mt-3 text-ink-muted text-[15px] tabular">
-          {topics.length} topik. Tiga terpilih random setiap hari.
+          {topics.length} topics. Three picked at random every day.
         </p>
       </header>
 
       {topics.length === 0 && (
-        <p className="text-ink-muted italic">Belum ada topik.</p>
+        <p className="text-ink-muted italic">No topics yet.</p>
       )}
 
       <ul className="grid gap-4 md:grid-cols-2">
@@ -54,7 +54,7 @@ export default async function TopicsArchivePage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-ink-muted tabular">
-                  {t._count.journals} setoran
+                  {t._count.journals} essays
                 </span>
               </div>
               <p className="font-display text-base leading-snug text-ink">

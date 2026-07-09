@@ -44,13 +44,13 @@ export default async function JournalDetailPage({
         className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
       >
         <ArrowLeft size={14} weight="bold" />
-        Feed
+        Home
       </Link>
 
       <article className="card bg-paper-raised p-6 md:p-10" data-reveal>
         {journal.topic && (
           <span className="inline-block text-[10px] uppercase tracking-widest font-semibold text-accent mb-2">
-            Topik
+            Essay
           </span>
         )}
         <h1 className="font-display text-3xl md:text-4xl leading-[1.05] tracking-tight text-ink">
@@ -65,7 +65,7 @@ export default async function JournalDetailPage({
         <div className="mt-5 pb-5 border-b-[1.5px] border-ink flex flex-wrap gap-x-5 gap-y-1 text-xs tabular text-ink-muted">
           <span className="font-semibold text-ink">{journal.authorName}</span>
           <span>{formatDate(journal.createdAt)}</span>
-          <span>{wordCount(journal.content)} kata</span>
+          <span>{wordCount(journal.content)} words</span>
         </div>
 
         <div className="prose-journal mt-8">{journal.content}</div>
@@ -73,16 +73,14 @@ export default async function JournalDetailPage({
 
       <section data-reveal style={{ "--d": "120ms" } as React.CSSProperties}>
         <h2 className="font-display text-xl text-ink mb-5">
-          Review{" "}
+          Reviews{" "}
           <span className="text-ink-muted text-sm tabular">
             ({journal.reviews.length})
           </span>
         </h2>
 
         {journal.reviews.length === 0 ? (
-          <p className="text-sm text-ink-muted italic mb-6">
-            Belum ada review.
-          </p>
+          <p className="text-sm text-ink-muted italic mb-6">No reviews yet.</p>
         ) : (
           <ul className="space-y-4 mb-6">
             {journal.reviews.map((r) => (

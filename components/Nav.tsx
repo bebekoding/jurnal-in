@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const ITEMS = [
-  { href: "/", label: "Beranda" },
-  { href: "/new", label: "Jurnal" },
-  { href: "/topics", label: "Topik" },
-  { href: "/export", label: "Rekap" },
+  { href: "/", label: "Home" },
+  { href: "/new", label: "Journal" },
+  { href: "/topics", label: "Essay" },
+  { href: "/export", label: "Recap" },
 ];
 
 export function Nav() {

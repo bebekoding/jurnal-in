@@ -8,7 +8,7 @@ import TopicHeader from "./TopicHeader";
 export const dynamic = "force-dynamic";
 
 function formatShort(d: Date) {
-  return new Date(d).toLocaleDateString("id-ID", {
+  return new Date(d).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
   });
@@ -39,13 +39,13 @@ export default async function WriteTopicPage({
   if (!topic) notFound();
 
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="space-y-8">
       <Link
         href="/topics"
         className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
       >
         <ArrowLeft size={14} weight="bold" />
-        Topik hari ini
+        Today&apos;s topic
       </Link>
 
       <TopicHeader
@@ -59,15 +59,12 @@ export default async function WriteTopicPage({
       {topic.journals.length > 0 && (
         <section data-reveal>
           <h2 className="font-display text-lg text-ink mb-4">
-            Setoran ({topic.journals.length})
+            Essays ({topic.journals.length})
           </h2>
-          <ul className="grid gap-4">
+          <ul className="grid gap-4 md:grid-cols-2">
             {topic.journals.map((j) => (
               <li key={j.id}>
-                <Link
-                  href={`/journals/${j.id}`}
-                  className="card block p-4"
-                >
+                <Link href={`/journals/${j.id}`} className="card block p-4 h-full">
                   <div className="flex items-baseline justify-between text-xs tabular mb-1.5">
                     <span className="font-semibold text-ink">
                       {j.authorName}

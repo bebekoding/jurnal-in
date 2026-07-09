@@ -54,12 +54,12 @@ export default function NewJournalPage() {
     e.preventDefault();
     setError(null);
     if (!name.trim() || !date.trim() || !content.trim()) {
-      setError("Nama, tanggal, dan isi jurnal wajib diisi.");
+      setError("Writer, date, and your writing are all required.");
       return;
     }
     if (!sentencesOK) {
       setError(
-        `Minimal ${MIN_SENTENCES} kalimat (baru ${sentences}). Akhiri kalimat dengan titik, tanda seru, atau tanda tanya.`
+        `At least ${MIN_SENTENCES} sentences (${sentences} so far). End each sentence with a period, exclamation, or question mark.`
       );
       return;
     }
@@ -79,79 +79,47 @@ export default function NewJournalPage() {
       const data = await res.json();
       router.push(`/journals/${data.id}`);
     } catch (err: any) {
-      setError(err.message || "Gagal menyimpan jurnal.");
+      setError(err.message || "Failed to save the journal.");
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="max-w-3xl">
+    <div>
       <Link
         href="/"
         className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition mb-8"
       >
         <ArrowLeft size={14} weight="bold" />
-        Feed
+        Home
       </Link>
 
       <h1
         className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink"
         data-reveal
       >
-        Jurnal bebas.
+        Daily journal.
       </h1>
       <p
         className="mt-3 text-ink-muted text-[15px]"
         data-reveal
         style={{ "--d": "90ms" } as React.CSSProperties}
       >
-        Cerita harimu dalam bahasa Inggris, minimum lima kalimat.
+        Tell your day in English, five sentences minimum.
       </p>
 
-      <form
-        onSubmit={submit}
-        className="mt-10 space-y-7"
-        data-reveal
-        style={{ "--d": "180ms" } as React.CSSProperties}
-      >
-        <div className="grid md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
-              Penulis
-            </label>
-            <select
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full h-11 px-3 text-sm"
-            >
-              <option value="">Pilih nama</option>
-              {PARTICIPANTS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
-              Tanggal
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full h-11 px-3 text-sm tabular"
-            />
-          </div>
-        </div>
-
-        <div>
+      <form onSubmit={submit} className="mt-10 grid md:grid-cols-12 gap-8">
+        <div
+          className="md:col-span-8"
+          data-reveal
+          style={{ "--d": "180ms" } as React.CSSProperties}
+        >
           <div className="flex items-baseline justify-between mb-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-              Tulisan
+              Your writing
             </label>
             <div className="flex items-center gap-4 text-xs tabular">
-              <span className="text-ink-muted">{words} kata</span>
+              <span className="text-ink-muted">{words} words</span>
               <span
                 className={`inline-flex items-center gap-1 font-semibold ${
                   sentencesOK ? "text-ink" : "text-ink-muted"
@@ -162,28 +130,69 @@ export default function NewJournalPage() {
                 ) : (
                   <Circle size={14} weight="regular" />
                 )}
-                {sentences}/{MIN_SENTENCES} kalimat
+                {sentences}/{MIN_SENTENCES} sentences
               </span>
             </div>
           </div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            rows={16}
-            className="w-full px-4 py-4 font-reading text-[17px] leading-[1.6]"
+            rows={20}
+            className="w-full h-full min-h-[420px] px-4 py-4 font-reading text-[17px] leading-[1.6]"
             placeholder="Tell a story about your day..."
           />
         </div>
 
-        {error && (
-          <div className="card bg-accent-soft px-4 py-3 text-sm text-ink">
-            {error}
-          </div>
-        )}
+        <aside
+          className="md:col-span-4"
+          data-reveal
+          style={{ "--d": "260ms" } as React.CSSProperties}
+        >
+          <div className="card p-6 space-y-5 md:sticky md:top-24">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+                Writer
+              </label>
+              <select
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full h-11 px-3 text-sm"
+              >
+                <option value="">Select name</option>
+                {PARTICIPANTS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+                Date
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full h-11 px-3 text-sm tabular"
+              />
+            </div>
 
-        <button type="submit" disabled={submitting} className="btn btn-primary">
-          {submitting ? "Menyimpan…" : "Setor jurnal"}
-        </button>
+            {error && (
+              <div className="rounded-lg border-[1.5px] border-ink bg-accent-soft px-3 py-2.5 text-sm text-ink">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn btn-primary w-full justify-center"
+            >
+              {submitting ? "Saving…" : "Submit journal"}
+            </button>
+          </div>
+        </aside>
       </form>
     </div>
   );

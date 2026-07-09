@@ -18,7 +18,7 @@ export default function TopicHeader({
     <section className="card bg-lime-soft p-6 md:p-8" data-reveal>
       <div className="flex items-start justify-between gap-4 mb-3">
         <span className="text-[10px] uppercase tracking-widest font-semibold text-ink-muted">
-          Topik
+          Topic
         </span>
         {titleId && (
           <button

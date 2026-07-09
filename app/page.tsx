@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 function formatDate(d: Date) {
-  return new Date(d).toLocaleDateString("id-ID", {
+  return new Date(d).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
   });
@@ -64,21 +64,21 @@ export default async function HomePage() {
         <div className="md:col-span-8">
           <h1 className="font-display text-[clamp(2.75rem,6vw,5rem)] leading-[0.98] tracking-tight text-ink">
             <span className="block" data-reveal>
-              Buku catatan
+              A shared notebook
             </span>
             <span
               className="block italic font-reading font-medium"
               data-reveal
               style={{ "--d": "90ms" } as React.CSSProperties}
             >
-              untuk latihan
+              for practicing
             </span>
             <span
               className="block"
               data-reveal
               style={{ "--d": "180ms" } as React.CSSProperties}
             >
-              writing IELTS.
+              IELTS writing.
             </span>
           </h1>
           <div
@@ -88,11 +88,11 @@ export default async function HomePage() {
           >
             <Link href="/new" className="btn btn-primary">
               <PencilSimpleLine size={16} weight="bold" />
-              Tulis jurnal
+              Write journal
             </Link>
             <Link href="/topics" className="btn btn-secondary">
               <Target size={16} weight="bold" />
-              Topik hari ini
+              Today&apos;s topic
             </Link>
           </div>
         </div>
@@ -108,15 +108,15 @@ export default async function HomePage() {
                 {journals.length}
               </div>
               <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
-                Tulisan
+                Entries
               </div>
             </div>
             <div>
               <div className="font-display text-3xl text-ink">
-                {totalWords.toLocaleString("id-ID")}
+                {totalWords.toLocaleString("en-US")}
               </div>
               <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
-                Kata
+                Words
               </div>
             </div>
             <div>
@@ -124,7 +124,7 @@ export default async function HomePage() {
                 {distinctAuthors}
               </div>
               <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
-                Penulis
+                Writers
               </div>
             </div>
           </div>
@@ -136,17 +136,17 @@ export default async function HomePage() {
           className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
           data-reveal
         >
-          <h2 className="font-display text-xl text-ink">Tulisan terbaru</h2>
+          <h2 className="font-display text-xl text-ink">Latest entries</h2>
           <span className="text-xs text-ink-muted tabular">
-            {journals.length} entri
+            {journals.length} entries
           </span>
         </div>
 
         {journals.length === 0 ? (
           <div className="card p-10 text-center text-ink-muted" data-reveal>
-            Belum ada yang setor.{" "}
+            Nothing here yet.{" "}
             <Link href="/new" className="link">
-              Tulis sekarang
+              Write the first one
             </Link>
             .
           </div>
@@ -167,7 +167,7 @@ export default async function HomePage() {
                   </div>
                   {j.topic && (
                     <span className="inline-block text-[10px] uppercase tracking-widest font-semibold text-accent mb-1.5">
-                      Topik
+                      Essay
                     </span>
                   )}
                   <h3 className="font-display text-xl text-ink leading-tight">
@@ -177,8 +177,8 @@ export default async function HomePage() {
                     {excerpt(j.content)}
                   </p>
                   <div className="mt-4 pt-3 border-t border-ink/15 flex justify-between text-xs text-ink-muted tabular">
-                    <span>{wordCount(j.content)} kata</span>
-                    <span>{j._count.reviews} review</span>
+                    <span>{wordCount(j.content)} words</span>
+                    <span>{j._count.reviews} reviews</span>
                   </div>
                 </Link>
               </li>

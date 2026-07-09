@@ -22,7 +22,7 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
     e.preventDefault();
     setError(null);
     if (!name.trim() || !comment.trim()) {
-      setError("Nama dan komentar wajib diisi.");
+      setError("Name and comment are both required.");
       return;
     }
     setSubmitting(true);
@@ -37,7 +37,7 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
       setComment("");
       router.refresh();
     } catch (err: any) {
-      setError(err.message || "Gagal mengirim review.");
+      setError(err.message || "Failed to send the review.");
     } finally {
       setSubmitting(false);
     }
@@ -48,14 +48,14 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
       <div className="grid md:grid-cols-4 gap-4">
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Kamu
+            You
           </label>
           <select
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full h-10 px-2 text-sm"
           >
-            <option value="">Pilih nama</option>
+            <option value="">Select name</option>
             {PARTICIPANTS.map((p) => (
               <option key={p} value={p}>
                 {p}
@@ -77,7 +77,7 @@ export default function ReviewForm({ journalId }: { journalId: string }) {
       </div>
       {error && <div className="text-xs text-accent font-semibold">{error}</div>}
       <button type="submit" disabled={submitting} className="btn btn-ink h-10">
-        {submitting ? "Mengirim…" : "Kirim review"}
+        {submitting ? "Sending…" : "Send review"}
       </button>
     </form>
   );

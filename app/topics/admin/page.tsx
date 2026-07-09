@@ -19,7 +19,7 @@ export default function TopicsAdminPage() {
     setError(null);
     setResult(null);
     if (lines.length === 0) {
-      setError("Masukkan minimal 1 topik.");
+      setError("Add at least one topic.");
       return;
     }
     setSubmitting(true);
@@ -34,7 +34,7 @@ export default function TopicsAdminPage() {
       setResult(data);
       setRaw("");
     } catch (err: any) {
-      setError(err.message || "Gagal menambah topik");
+      setError(err.message || "Failed to add topics.");
     } finally {
       setSubmitting(false);
     }
@@ -44,12 +44,12 @@ export default function TopicsAdminPage() {
     <div className="max-w-3xl space-y-8">
       <header data-reveal>
         <h1 className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink">
-          Tambah topik.
+          Add topics.
         </h1>
         <p className="mt-3 text-ink-muted text-[15px]">
-          Satu topik per baris. Format:{" "}
+          One topic per line. Format:{" "}
           <code className="font-mono text-ink text-xs">
-            Title | Judul ID | Deskripsi
+            Title | Indonesian title | Description
           </code>
         </p>
       </header>
@@ -62,7 +62,7 @@ export default function TopicsAdminPage() {
       >
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Password admin
+            Admin password
           </label>
           <input
             type="password"
@@ -74,7 +74,7 @@ export default function TopicsAdminPage() {
 
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Topik ({lines.length} baris)
+            Topics ({lines.length} lines)
           </label>
           <textarea
             value={raw}
@@ -91,12 +91,12 @@ export default function TopicsAdminPage() {
         )}
         {result && (
           <div className="card bg-lime-soft px-4 py-3 text-sm text-ink font-semibold">
-            {result.inserted} topik masuk pool.
+            {result.inserted} topics added to the pool.
           </div>
         )}
 
         <button type="submit" disabled={submitting} className="btn btn-primary">
-          {submitting ? "Menyimpan…" : "Tambah ke pool"}
+          {submitting ? "Saving…" : "Add to pool"}
         </button>
       </form>
     </div>

@@ -7,18 +7,18 @@ export async function POST(
 ) {
   const body = await req.json().catch(() => null);
   if (!body?.authorName || !body?.comment) {
-    return new NextResponse("authorName dan comment wajib diisi", { status: 400 });
+    return new NextResponse("Name and comment are required", { status: 400 });
   }
   const authorName = String(body.authorName).slice(0, 60).trim();
   const comment = String(body.comment).slice(0, 4000).trim();
   if (!authorName || !comment) {
-    return new NextResponse("Input tidak valid", { status: 400 });
+    return new NextResponse("Invalid input", { status: 400 });
   }
   const journal = await prisma.journal.findUnique({
     where: { id: params.id },
     select: { id: true },
   });
-  if (!journal) return new NextResponse("Jurnal tidak ditemukan", { status: 404 });
+  if (!journal) return new NextResponse("Journal not found", { status: 404 });
 
   const review = await prisma.review.create({
     data: { journalId: params.id, authorName, comment },

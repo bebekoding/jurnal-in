@@ -29,7 +29,7 @@ export default function TopicsList({ topics }: { topics: Topic[] }) {
             }`}
           >
             <Translate size={14} weight="bold" />
-            {showTranslation ? "English saja" : "Terjemahkan"}
+            {showTranslation ? "Hide Indonesian" : "Show Indonesian"}
           </button>
         </div>
       )}
@@ -50,7 +50,7 @@ export default function TopicsList({ topics }: { topics: Topic[] }) {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-ink-muted tabular">
-                  {t._count.journals} setoran
+                  {t._count.journals} essays
                 </span>
               </div>
 
@@ -71,7 +71,7 @@ export default function TopicsList({ topics }: { topics: Topic[] }) {
               )}
 
               <div className="mt-auto pt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
-                Tulis jawaban
+                Write essay
                 <ArrowRight
                   size={14}
                   weight="bold"

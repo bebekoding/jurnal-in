@@ -32,15 +32,14 @@ export default async function TopicsPage() {
         <div>
           <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[0.98] tracking-tight text-ink">
             <span className="block" data-reveal>
-              Tiga topik
+              Today&apos;s
             </span>
             <span
-              className="block"
+              className="block italic font-reading font-medium"
               data-reveal
               style={{ "--d": "90ms" } as React.CSSProperties}
             >
-              <span className="italic font-reading font-medium">random</span>{" "}
-              hari ini.
+              topic.
             </span>
           </h1>
           <p
@@ -48,7 +47,7 @@ export default async function TopicsPage() {
             data-reveal
             style={{ "--d": "180ms" } as React.CSSProperties}
           >
-            Pilih satu. Minimum empat paragraf, 200 kata, bahasa Inggris.
+            Pick one. Four paragraphs and 200 words minimum, in English.
           </p>
         </div>
         <div
@@ -57,13 +56,13 @@ export default async function TopicsPage() {
           style={{ "--d": "260ms" } as React.CSSProperties}
         >
           <span className="text-ink font-semibold">{formatDateLong(today)}</span>
-          <span className="text-ink-muted"> · pool {allTopics.length} topik</span>
+          <span className="text-ink-muted"> · pool of {allTopics.length} topics</span>
         </div>
       </header>
 
       {topics.length === 0 ? (
         <div className="card p-10 text-center text-ink-muted" data-reveal>
-          Pool kosong. Tambah lewat{" "}
+          The pool is empty. Add topics via{" "}
           <Link href="/topics/admin" className="link">
             /topics/admin
           </Link>
@@ -75,7 +74,7 @@ export default async function TopicsPage() {
 
       <div data-reveal>
         <Link href="/topics/archive" className="link text-sm">
-          Semua topik di pool →
+          All topics in the pool →
         </Link>
       </div>
     </div>

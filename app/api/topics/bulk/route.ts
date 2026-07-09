@@ -9,12 +9,12 @@ type IncomingTopic = {
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
-  if (!body) return new NextResponse("Body invalid", { status: 400 });
+  if (!body) return new NextResponse("Invalid body", { status: 400 });
 
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (adminPassword) {
     if (body.password !== adminPassword) {
-      return new NextResponse("Password admin salah", { status: 401 });
+      return new NextResponse("Wrong admin password", { status: 401 });
     }
   }
 
@@ -49,10 +49,10 @@ export async function POST(req: Request) {
     .filter((t: IncomingTopic) => t.title.length > 0 && t.title.length <= 500);
 
   if (topics.length === 0) {
-    return new NextResponse("Tidak ada topik valid", { status: 400 });
+    return new NextResponse("No valid topics", { status: 400 });
   }
   if (topics.length > 90) {
-    return new NextResponse("Maksimal 90 topik per submission", { status: 400 });
+    return new NextResponse("Maximum 90 topics per submission", { status: 400 });
   }
 
   const scheduledFor = new Date(startDate + "T00:00:00Z");

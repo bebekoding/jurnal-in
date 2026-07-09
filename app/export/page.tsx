@@ -78,7 +78,7 @@ export default function ExportPage() {
 
   const [from, setFrom] = useState(daysAgo(7));
   const [to, setTo] = useState(ymd(new Date()));
-  const [author, setAuthor] = useState("Semua");
+  const [author, setAuthor] = useState("All");
   const [includePrompt, setIncludePrompt] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -100,7 +100,7 @@ export default function ExportPage() {
       .filter((j) => {
         const t = new Date(j.createdAt).getTime();
         if (t < fromT || t > toT) return false;
-        if (author !== "Semua" && j.authorName !== author) return false;
+        if (author !== "All" && j.authorName !== author) return false;
         return true;
       })
       .sort(
@@ -128,7 +128,7 @@ export default function ExportPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      setError("Gagal copy ke clipboard.");
+      setError("Could not copy to clipboard.");
     }
   }
 
@@ -141,14 +141,14 @@ export default function ExportPage() {
           className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink"
           data-reveal
         >
-          Rekap.
+          Recap.
         </h1>
         <p
           className="mt-3 text-ink-muted text-[15px]"
           data-reveal
           style={{ "--d": "90ms" } as React.CSSProperties}
         >
-          Filter, copy, paste ke Claude chat untuk review lengkap.
+          Filter, copy, then paste into Claude chat for a full review.
         </p>
       </header>
 
@@ -159,7 +159,7 @@ export default function ExportPage() {
       >
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Dari
+            From
           </label>
           <input
             type="date"
@@ -170,7 +170,7 @@ export default function ExportPage() {
         </div>
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Sampai
+            To
           </label>
           <input
             type="date"
@@ -181,14 +181,14 @@ export default function ExportPage() {
         </div>
         <div>
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Peserta
+            Writer
           </label>
           <select
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             className="w-full h-10 px-2 text-sm"
           >
-            <option value="Semua">Semua</option>
+            <option value="All">All</option>
             {PARTICIPANTS.map((p) => (
               <option key={p} value={p}>
                 {p}
@@ -204,7 +204,7 @@ export default function ExportPage() {
               onChange={(e) => setIncludePrompt(e.target.checked)}
               className="accent-[#1d2b1f] w-4 h-4"
             />
-            Sertakan prompt
+            Include prompt
           </label>
         </div>
       </section>
@@ -219,8 +219,8 @@ export default function ExportPage() {
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-ink-muted tabular">
             {loading
-              ? "Memuat…"
-              : `${filtered.length} entri · ${totalWords.toLocaleString("id-ID")} kata`}
+              ? "Loading…"
+              : `${filtered.length} entries · ${totalWords.toLocaleString("en-US")} words`}
           </span>
           <button
             onClick={copyToClipboard}
@@ -230,7 +230,7 @@ export default function ExportPage() {
             {copied ? (
               <>
                 <Check size={14} weight="bold" />
-                Tersalin
+                Copied
               </>
             ) : (
               <>
@@ -245,7 +245,7 @@ export default function ExportPage() {
           readOnly
           rows={20}
           className="w-full px-4 py-3 font-mono text-xs leading-relaxed"
-          placeholder={loading ? "Memuat…" : "Tidak ada jurnal di rentang ini."}
+          placeholder={loading ? "Loading…" : "No entries in this range."}
         />
       </section>
     </div>
