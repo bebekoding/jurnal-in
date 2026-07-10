@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Circle } from "@phosphor-icons/react";
+import { CheckCircle, Circle, Timer } from "@phosphor-icons/react";
 import { PARTICIPANTS } from "@/lib/participants";
+import { formatDuration } from "@/lib/time";
 
 const MIN_WORDS = 200;
 const MIN_PARAGRAPHS = 4;
@@ -25,6 +26,10 @@ export default function WriteForm({ topicId }: { topicId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const startedAtRef = useRef<number | null>(null);
+
   useEffect(() => {
     const saved = localStorage.getItem("jurnal.name");
     if (saved && (PARTICIPANTS as readonly string[]).includes(saved)) {
@@ -32,10 +37,34 @@ export default function WriteForm({ topicId }: { topicId: string }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (!startedAt) return;
+    startedAtRef.current = startedAt;
+    const tick = () =>
+      setElapsed(Math.floor((Date.now() - (startedAtRef.current ?? Date.now())) / 1000));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [startedAt]);
+
+  function handleContentChange(next: string) {
+    setContent(next);
+    if (!startedAt && next.trim().length > 0) {
+      setStartedAt(Date.now());
+    }
+  }
+
   const words = wordCount(content);
   const paras = paragraphCount(content);
   const wordsOK = words >= MIN_WORDS;
   const parasOK = paras >= MIN_PARAGRAPHS;
+
+  const startedLabel = startedAt
+    ? new Date(startedAt).toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,6 +93,7 @@ export default function WriteForm({ topicId }: { topicId: string }) {
           authorName: name.trim(),
           topicId,
           content: content.trim(),
+          durationSeconds: startedAt ? elapsed : null,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -116,7 +146,7 @@ export default function WriteForm({ topicId }: { topicId: string }) {
         </div>
         <textarea
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => handleContentChange(e.target.value)}
           rows={20}
           className="w-full min-h-[420px] px-4 py-4 font-reading text-[17px] leading-[1.65]"
           placeholder="Separate each paragraph with a blank line."
@@ -126,6 +156,33 @@ export default function WriteForm({ topicId }: { topicId: string }) {
       <aside className="md:col-span-4">
         <div className="card p-6 space-y-5 md:sticky md:top-24">
           <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-ink-muted inline-flex items-center gap-1.5">
+                <Timer size={12} weight="bold" />
+                Time on essay
+              </label>
+              {startedAt && (
+                <span className="text-[10px] text-ink-muted tabular">
+                  started {startedLabel}
+                </span>
+              )}
+            </div>
+            <div
+              className={`font-display font-semibold tabular text-4xl leading-none ${
+                startedAt ? "text-ink" : "text-ink-subtle"
+              }`}
+              aria-live="polite"
+            >
+              {formatDuration(elapsed)}
+            </div>
+            {!startedAt && (
+              <p className="mt-1.5 text-[11px] text-ink-muted">
+                Starts when you begin typing.
+              </p>
+            )}
+          </div>
+
+          <div className="border-t border-ink/15 pt-5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
               Writer
             </label>

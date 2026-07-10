@@ -97,14 +97,35 @@ export async function POST(req: Request) {
     }
   }
 
-  const journal = await prisma.journal.create({
-    data: {
-      authorName,
-      title,
-      content,
-      topicId: topicId || null,
-    },
-    select: { id: true },
-  });
-  return NextResponse.json(journal, { status: 201 });
+  let durationSeconds: number | null = null;
+  if (typeof body.durationSeconds === "number") {
+    const d = Math.floor(body.durationSeconds);
+    if (d >= 0 && d < 60 * 60 * 24) durationSeconds = d;
+  }
+
+  try {
+    const journal = await prisma.journal.create({
+      data: {
+        authorName,
+        title,
+        content,
+        topicId: topicId || null,
+        ...(durationSeconds !== null ? { durationSeconds } : {}),
+      },
+      select: { id: true },
+    });
+    return NextResponse.json(journal, { status: 201 });
+  } catch {
+    // Fallback: durationSeconds column may not exist yet in old DB
+    const journal = await prisma.journal.create({
+      data: {
+        authorName,
+        title,
+        content,
+        topicId: topicId || null,
+      },
+      select: { id: true },
+    });
+    return NextResponse.json(journal, { status: 201 });
+  }
 }

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, Timer } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
+import { formatDurationLong } from "@/lib/time";
 import ReviewForm from "./ReviewForm";
 
 export const dynamic = "force-dynamic";
@@ -25,15 +26,39 @@ export default async function JournalDetailPage({
 }: {
   params: { id: string };
 }) {
-  const journal = await prisma.journal
+  let journal: any = await prisma.journal
     .findUnique({
       where: { id: params.id },
-      include: {
+      select: {
+        id: true,
+        authorName: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        durationSeconds: true,
         reviews: { orderBy: { createdAt: "asc" } },
         topic: { select: { id: true, title: true } },
       },
     })
     .catch(() => null);
+
+  if (journal === null) {
+    // Fallback: durationSeconds column may not exist yet in the DB
+    journal = await prisma.journal
+      .findUnique({
+        where: { id: params.id },
+        select: {
+          id: true,
+          authorName: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          reviews: { orderBy: { createdAt: "asc" } },
+          topic: { select: { id: true, title: true } },
+        },
+      })
+      .catch(() => null);
+  }
 
   if (!journal) notFound();
 
@@ -66,6 +91,13 @@ export default async function JournalDetailPage({
           <span className="font-semibold text-ink">{journal.authorName}</span>
           <span>{formatDate(journal.createdAt)}</span>
           <span>{wordCount(journal.content)} words</span>
+          {typeof (journal as any).durationSeconds === "number" &&
+            (journal as any).durationSeconds > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Timer size={12} weight="bold" />
+                {formatDurationLong((journal as any).durationSeconds)}
+              </span>
+            )}
         </div>
 
         <div className="prose-journal mt-8">{journal.content}</div>
@@ -83,7 +115,7 @@ export default async function JournalDetailPage({
           <p className="text-sm text-ink-muted italic mb-6">No reviews yet.</p>
         ) : (
           <ul className="space-y-4 mb-6">
-            {journal.reviews.map((r) => (
+            {journal.reviews.map((r: any) => (
               <li key={r.id} className="card p-4">
                 <div className="flex items-baseline justify-between text-xs tabular mb-1.5">
                   <span className="font-semibold text-ink">{r.authorName}</span>
