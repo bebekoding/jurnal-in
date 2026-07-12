@@ -24,7 +24,16 @@ export default async function TopicsPage() {
     })
     .catch(() => [] as any[]);
 
-  const topics = seededShuffle(allTopics, today).slice(0, DAILY_COUNT);
+  // Prioritize topics never chosen yet, then least-used. Deterministic per day.
+  // seededShuffle gives per-day random order; stable sort by count keeps that
+  // order inside each usage tier (0 essays first, then 1, then 2, ...).
+  const shuffled = seededShuffle(allTopics, today);
+  const prioritized = [...shuffled].sort(
+    (a, b) => a._count.journals - b._count.journals
+  );
+  const topics = prioritized.slice(0, DAILY_COUNT);
+
+  const freshCount = allTopics.filter((t) => t._count.journals === 0).length;
 
   return (
     <div className="space-y-10">
@@ -56,7 +65,12 @@ export default async function TopicsPage() {
           style={{ "--d": "260ms" } as React.CSSProperties}
         >
           <span className="text-ink font-semibold">{formatDateLong(today)}</span>
-          <span className="text-ink-muted"> · pool of {allTopics.length} topics</span>
+          <span className="text-ink-muted">
+            {" · "}
+            {freshCount > 0
+              ? `${freshCount} unused of ${allTopics.length}`
+              : `pool of ${allTopics.length}, rotating`}
+          </span>
         </div>
       </header>
 

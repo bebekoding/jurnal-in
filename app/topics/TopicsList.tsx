@@ -49,9 +49,15 @@ export default function TopicsList({ topics }: { topics: Topic[] }) {
                 <span className="font-display text-4xl text-ink tabular">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="text-[10px] uppercase tracking-widest text-ink-muted tabular">
-                  {t._count.journals} essays
-                </span>
+                {t._count.journals === 0 ? (
+                  <span className="text-[10px] uppercase tracking-widest font-semibold text-accent tabular">
+                    Unused
+                  </span>
+                ) : (
+                  <span className="text-[10px] uppercase tracking-widest text-ink-muted tabular">
+                    {t._count.journals} essays
+                  </span>
+                )}
               </div>
 
               <h3 className="font-display text-lg leading-snug text-ink">
