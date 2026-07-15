@@ -29,10 +29,12 @@ model Topic {
   titleId      String?
   description  String?
   scheduledFor DateTime  @db.Date
+  featuredFor  DateTime? @db.Date
   createdAt    DateTime  @default(now())
   journals     Journal[]
 
   @@index([scheduledFor])
+  @@index([featuredFor])
 }
 
 model Review {

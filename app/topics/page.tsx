@@ -8,11 +8,42 @@ export const dynamic = "force-dynamic";
 
 const DAILY_COUNT = 3;
 
-export default async function TopicsPage() {
-  const today = todayJakartaISO();
+type TopicRow = {
+  id: string;
+  title: string;
+  titleId: string | null;
+  description: string | null;
+  featuredFor: Date | null;
+  _count: { journals: number };
+};
 
-  const allTopics = await prisma.topic
-    .findMany({
+function dateIso(d: Date | null | undefined): string | null {
+  if (!d) return null;
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+async function fetchAllTopics(): Promise<{
+  rows: TopicRow[];
+  supportsFeatured: boolean;
+}> {
+  try {
+    const rows = await prisma.topic.findMany({
+      orderBy: { id: "asc" },
+      select: {
+        id: true,
+        title: true,
+        titleId: true,
+        description: true,
+        featuredFor: true,
+        _count: { select: { journals: true } },
+      },
+    });
+    return { rows: rows as TopicRow[], supportsFeatured: true };
+  } catch {
+    const rows = await prisma.topic.findMany({
       orderBy: { id: "asc" },
       select: {
         id: true,
@@ -21,19 +52,45 @@ export default async function TopicsPage() {
         description: true,
         _count: { select: { journals: true } },
       },
-    })
-    .catch(() => [] as any[]);
+    });
+    return {
+      rows: rows.map((r) => ({ ...r, featuredFor: null }) as TopicRow),
+      supportsFeatured: false,
+    };
+  }
+}
 
-  // Prioritize topics never chosen yet, then least-used. Deterministic per day.
-  // seededShuffle gives per-day random order; stable sort by count keeps that
-  // order inside each usage tier (0 essays first, then 1, then 2, ...).
-  const shuffled = seededShuffle(allTopics, today);
-  const prioritized = [...shuffled].sort(
-    (a, b) => a._count.journals - b._count.journals
+export default async function TopicsPage() {
+  const today = todayJakartaISO();
+  const { rows: allTopics } = await fetchAllTopics().catch(() => ({
+    rows: [] as TopicRow[],
+    supportsFeatured: false,
+  }));
+
+  const featuredToday = allTopics.filter(
+    (t) => dateIso(t.featuredFor) === today
   );
-  const topics = prioritized.slice(0, DAILY_COUNT);
 
-  const freshCount = allTopics.filter((t) => t._count.journals === 0).length;
+  let topics: TopicRow[];
+  let mode: "featured" | "rotation";
+  let freshCount = 0;
+
+  if (featuredToday.length > 0) {
+    topics = featuredToday;
+    mode = "featured";
+  } else {
+    // Normal rotation: exclude any topic ever marked as featured
+    const poolTopics = allTopics.filter((t) => t.featuredFor === null);
+    const shuffled = seededShuffle(poolTopics, today);
+    const prioritized = [...shuffled].sort(
+      (a, b) => a._count.journals - b._count.journals
+    );
+    topics = prioritized.slice(0, DAILY_COUNT);
+    mode = "rotation";
+    freshCount = poolTopics.filter((t) => t._count.journals === 0).length;
+  }
+
+  const poolSize = allTopics.filter((t) => t.featuredFor === null).length;
 
   return (
     <div className="space-y-10">
@@ -48,7 +105,7 @@ export default async function TopicsPage() {
               data-reveal
               style={{ "--d": "90ms" } as React.CSSProperties}
             >
-              topic.
+              {mode === "featured" ? "essay." : "topic."}
             </span>
           </h1>
           <p
@@ -56,7 +113,9 @@ export default async function TopicsPage() {
             data-reveal
             style={{ "--d": "180ms" } as React.CSSProperties}
           >
-            Pick one. Four paragraphs and 200 words minimum, in English.
+            {mode === "featured"
+              ? "Featured essay only for today. Four paragraphs and 200 words minimum, in English."
+              : "Pick one. Four paragraphs and 200 words minimum, in English."}
           </p>
         </div>
         <div
@@ -67,9 +126,11 @@ export default async function TopicsPage() {
           <span className="text-ink font-semibold">{formatDateLong(today)}</span>
           <span className="text-ink-muted">
             {" · "}
-            {freshCount > 0
-              ? `${freshCount} unused of ${allTopics.length}`
-              : `pool of ${allTopics.length}, rotating`}
+            {mode === "featured"
+              ? "featured essay"
+              : freshCount > 0
+                ? `${freshCount} unused of ${poolSize}`
+                : `pool of ${poolSize}, rotating`}
           </span>
         </div>
       </header>
@@ -83,7 +144,7 @@ export default async function TopicsPage() {
           .
         </div>
       ) : (
-        <TopicsList topics={topics} />
+        <TopicsList topics={topics} variant={mode} />
       )}
 
       <div data-reveal>
