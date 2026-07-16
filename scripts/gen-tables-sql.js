@@ -83,7 +83,7 @@ SELECT gen_random_uuid()::text, '${esc(t.title)}', '${esc(t.category)}', '${esc(
 WHERE NOT EXISTS (SELECT 1 FROM "TableTopic" WHERE "title" = '${esc(t.title)}');\n\n`;
 }
 fs.writeFileSync(
-  "/Users/960075/Documents/Jurnal.in/migration-tables.sql",
+  "/Users/960075/Documents/Jurnal.in/migrations/archive/migration-tables.sql",
   sql
 );
 

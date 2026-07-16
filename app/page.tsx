@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PencilSimpleLine, Target } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
+import { streaksByAuthor } from "@/lib/streak";
+import { StreakBadge } from "@/components/StreakBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -120,6 +122,15 @@ export default async function HomePage() {
     (j) => !j.topicId && !j.topic && !j.tableTopicId && !j.tableTopic
   );
 
+  const streakDict = streaksByAuthor(
+    journals.map((j) => ({ authorName: j.authorName, createdAt: j.createdAt }))
+  );
+  const topStreaks = Object.entries(streakDict)
+    .filter(([, days]) => days > 0)
+    .map(([name, days]) => ({ name, days }))
+    .sort((a, b) => b.days - a.days)
+    .slice(0, 3);
+
   return (
     <div className="space-y-16">
       <section className="grid md:grid-cols-12 gap-8 items-end">
@@ -190,6 +201,7 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+          <StreakBadge dict={streakDict} top={topStreaks} />
         </aside>
       </section>
 
