@@ -59,6 +59,14 @@ async function run(): Promise<any> {
       "index Journal.tableTopicId",
       `CREATE INDEX IF NOT EXISTS "Journal_tableTopicId_idx" ON "Journal"("tableTopicId")`,
     ],
+    [
+      "add Topic.featuredFor",
+      `ALTER TABLE "Topic" ADD COLUMN IF NOT EXISTS "featuredFor" DATE`,
+    ],
+    [
+      "index Topic.featuredFor",
+      `CREATE INDEX IF NOT EXISTS "Topic_featuredFor_idx" ON "Topic"("featuredFor")`,
+    ],
   ];
   for (const [label, sql] of schemaStmts) {
     try {
