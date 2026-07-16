@@ -10,7 +10,8 @@ export default async function EditPage({
 }: {
   params: { id: string };
 }) {
-  const journal = await prisma.journal
+  // Try the full query first (with tableTopic support).
+  let journal: any = await prisma.journal
     .findUnique({
       where: { id: params.id },
       select: {
@@ -27,6 +28,24 @@ export default async function EditPage({
     })
     .catch(() => null);
 
+  // Fallback for DBs that haven't been migrated for tables yet.
+  if (journal === null) {
+    journal = await prisma.journal
+      .findUnique({
+        where: { id: params.id },
+        select: {
+          id: true,
+          authorName: true,
+          title: true,
+          content: true,
+          createdAt: true,
+          topicId: true,
+          topic: { select: { title: true } },
+        },
+      })
+      .catch(() => null);
+  }
+
   if (!journal) notFound();
 
   const isTable = !!journal.tableTopicId || !!journal.tableTopic;
@@ -38,7 +57,9 @@ export default async function EditPage({
       id={journal.id}
       authorName={journal.authorName}
       kind={kind}
-      contextTitle={journal.topic?.title ?? journal.tableTopic?.title ?? null}
+      contextTitle={
+        journal.topic?.title ?? journal.tableTopic?.title ?? null
+      }
       initialContent={journal.content}
       initialDate={isoDateJakarta(journal.createdAt)}
     />

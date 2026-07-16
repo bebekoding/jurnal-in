@@ -6,7 +6,7 @@ import { seededShuffle } from "@/lib/random";
 
 export const dynamic = "force-dynamic";
 
-const DAILY_COUNT = 3;
+const DAILY_COUNT = 2;
 
 export default async function TablesPage() {
   const today = todayJakartaISO();
@@ -75,7 +75,7 @@ export default async function TablesPage() {
           No tables in the bank yet.
         </div>
       ) : (
-        <ul className="grid md:grid-cols-3 gap-6">
+        <ul className="grid md:grid-cols-2 gap-6">
           {tables.map((t, i) => (
             <li
               key={t.id}

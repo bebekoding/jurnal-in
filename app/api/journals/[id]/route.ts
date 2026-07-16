@@ -22,16 +22,34 @@ export async function PATCH(
     return new NextResponse("Unknown writer", { status: 400 });
   }
 
-  const existing = await prisma.journal.findUnique({
-    where: { id: params.id },
-    select: {
-      id: true,
-      authorName: true,
-      topicId: true,
-      tableTopicId: true,
-      createdAt: true,
-    },
-  });
+  let existing: any = await prisma.journal
+    .findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        authorName: true,
+        topicId: true,
+        tableTopicId: true,
+        createdAt: true,
+      },
+    })
+    .catch(() => null);
+
+  // Fallback for DBs without tableTopicId yet.
+  if (existing === null) {
+    existing = await prisma.journal
+      .findUnique({
+        where: { id: params.id },
+        select: {
+          id: true,
+          authorName: true,
+          topicId: true,
+          createdAt: true,
+        },
+      })
+      .catch(() => null);
+  }
+
   if (!existing) return new NextResponse("Not found", { status: 404 });
   if (existing.authorName !== authorName) {
     return new NextResponse("You can only edit your own posts", {
