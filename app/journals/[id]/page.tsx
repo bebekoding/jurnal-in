@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Timer } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import { formatDurationLong } from "@/lib/time";
+import { MarkdownTable } from "@/components/MarkdownTable";
 import ReviewForm from "./ReviewForm";
 import OwnerActions from "./OwnerActions";
 
@@ -37,9 +38,11 @@ export default async function JournalDetailPage({
         content: true,
         createdAt: true,
         topicId: true,
+        tableTopicId: true,
         durationSeconds: true,
         reviews: { orderBy: { createdAt: "asc" } },
         topic: { select: { id: true, title: true } },
+        tableTopic: { select: { title: true, category: true, tableMarkdown: true } },
       },
     })
     .catch(() => null);
@@ -64,7 +67,9 @@ export default async function JournalDetailPage({
 
   if (!journal) notFound();
 
-  const isEssay = !!journal.topicId || !!journal.topic;
+  const isTable = !!journal.tableTopicId || !!journal.tableTopic;
+  const isEssay = (!!journal.topicId || !!journal.topic) && !isTable;
+  const kindLabel = isTable ? "Table" : isEssay ? "Essay" : "Journal";
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -85,7 +90,10 @@ export default async function JournalDetailPage({
             isEssay ? "text-accent" : "text-ink-subtle"
           }`}
         >
-          {isEssay ? "Essay" : "Journal"}
+          {kindLabel}
+          {isTable && journal.tableTopic?.category
+            ? ` · ${journal.tableTopic.category}`
+            : ""}
         </span>
         <h1 className="font-display text-3xl md:text-4xl leading-[1.05] tracking-tight text-ink">
           {journal.title}
@@ -94,6 +102,11 @@ export default async function JournalDetailPage({
           <p className="mt-3 font-reading italic text-ink-muted leading-relaxed">
             {journal.topic.title}
           </p>
+        )}
+        {isTable && journal.tableTopic?.tableMarkdown && (
+          <div className="mt-5">
+            <MarkdownTable markdown={journal.tableTopic.tableMarkdown} />
+          </div>
         )}
 
         <div className="mt-5 pb-5 border-b-[1.5px] border-ink flex flex-wrap gap-x-5 gap-y-1 text-xs tabular text-ink-muted">

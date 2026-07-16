@@ -9,18 +9,33 @@ datasource db {
 }
 
 model Journal {
-  id              String    @id @default(cuid())
+  id              String      @id @default(cuid())
   authorName      String
   title           String
   content         String
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime    @default(now())
   durationSeconds Int?
   topicId         String?
+  tableTopicId    String?
   reviews         Review[]
-  topic           Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  topic           Topic?      @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  tableTopic      TableTopic? @relation(fields: [tableTopicId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
   @@index([topicId])
+  @@index([tableTopicId])
+}
+
+model TableTopic {
+  id            String    @id @default(cuid())
+  title         String
+  category      String?
+  tableMarkdown String
+  featuredFor   DateTime? @db.Date
+  createdAt     DateTime  @default(now())
+  journals      Journal[]
+
+  @@index([featuredFor])
 }
 
 model Topic {

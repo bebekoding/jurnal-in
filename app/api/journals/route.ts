@@ -14,8 +14,10 @@ export async function GET() {
         content: true,
         createdAt: true,
         topicId: true,
+        tableTopicId: true,
         _count: { select: { reviews: true } },
         topic: { select: { id: true, title: true } },
+        tableTopic: { select: { id: true, title: true, tableMarkdown: true } },
       },
       take: 100,
     });
@@ -55,9 +57,34 @@ export async function POST(req: Request) {
   }
 
   const topicId: string | undefined = body.topicId;
+  const tableTopicId: string | undefined = body.tableTopicId;
   let title: string;
 
-  if (topicId) {
+  if (tableTopicId) {
+    const table = await prisma.tableTopic.findUnique({
+      where: { id: tableTopicId },
+      select: { id: true, title: true },
+    });
+    if (!table) {
+      return new NextResponse("Table not found", { status: 404 });
+    }
+    title = table.title;
+
+    const words = content.split(/\s+/).filter(Boolean).length;
+    const paras = paragraphCount(content);
+    if (words < 150) {
+      return new NextResponse(
+        `Task 1 needs at least 150 words (${words} so far).`,
+        { status: 400 }
+      );
+    }
+    if (paras < 3) {
+      return new NextResponse(
+        `Task 1 needs at least 3 paragraphs (${paras} so far). Separate paragraphs with a blank line.`,
+        { status: 400 }
+      );
+    }
+  } else if (topicId) {
     const topic = await prisma.topic.findUnique({
       where: { id: topicId },
       select: { id: true, title: true },
@@ -110,13 +137,14 @@ export async function POST(req: Request) {
         title,
         content,
         topicId: topicId || null,
+        tableTopicId: tableTopicId || null,
         ...(durationSeconds !== null ? { durationSeconds } : {}),
       },
       select: { id: true },
     });
     return NextResponse.json(journal, { status: 201 });
   } catch {
-    // Fallback: durationSeconds column may not exist yet in old DB
+    // Fallback: durationSeconds / tableTopicId column may not exist yet
     const journal = await prisma.journal.create({
       data: {
         authorName,

@@ -20,21 +20,25 @@ export default async function EditPage({
         content: true,
         createdAt: true,
         topicId: true,
+        tableTopicId: true,
         topic: { select: { title: true } },
+        tableTopic: { select: { title: true } },
       },
     })
     .catch(() => null);
 
   if (!journal) notFound();
 
-  const isEssay = !!journal.topicId || !!journal.topic;
+  const isTable = !!journal.tableTopicId || !!journal.tableTopic;
+  const isEssay = (!!journal.topicId || !!journal.topic) && !isTable;
+  const kind = isTable ? "table" : isEssay ? "essay" : "journal";
 
   return (
     <EditForm
       id={journal.id}
       authorName={journal.authorName}
-      isEssay={isEssay}
-      topicTitle={journal.topic?.title ?? null}
+      kind={kind}
+      contextTitle={journal.topic?.title ?? journal.tableTopic?.title ?? null}
       initialContent={journal.content}
       initialDate={isoDateJakarta(journal.createdAt)}
     />

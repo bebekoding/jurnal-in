@@ -10,6 +10,7 @@ type Journal = {
   title: string;
   content: string;
   createdAt: string;
+  tableTopic?: { title: string; tableMarkdown: string } | null;
 };
 
 const REVIEW_PROMPT = `You are an experienced IELTS Writing examiner. Below are journal entries from a study group practicing IELTS-style writing. For each entry, respond in this format:
@@ -116,7 +117,10 @@ export default function ExportPage() {
         const wc = wordCount(j.content);
         const sc = sentenceCount(j.content);
         const date = formatDateLong(new Date(j.createdAt));
-        return `### ${i + 1}. ${j.authorName}, ${date} (${wc} words, ${sc} sentences)\n\n${j.content.trim()}`;
+        const tableBlock = j.tableTopic
+          ? `Task 1 table — ${j.tableTopic.title}\n\n${j.tableTopic.tableMarkdown}\n\n`
+          : "";
+        return `### ${i + 1}. ${j.authorName}, ${date} (${wc} words, ${sc} sentences)\n\n${tableBlock}${j.content.trim()}`;
       })
       .join("\n\n---\n\n");
     return header + entries;

@@ -23,15 +23,15 @@ function paragraphCount(text: string) {
 export default function EditForm({
   id,
   authorName,
-  isEssay,
-  topicTitle,
+  kind,
+  contextTitle,
   initialContent,
   initialDate,
 }: {
   id: string;
   authorName: string;
-  isEssay: boolean;
-  topicTitle: string | null;
+  kind: "journal" | "essay" | "table";
+  contextTitle: string | null;
   initialContent: string;
   initialDate: string;
 }) {
@@ -48,15 +48,21 @@ export default function EditForm({
   const sentences = sentenceCount(content);
   const paras = paragraphCount(content);
 
-  const checks = isEssay
-    ? [
-        { ok: words >= 200, label: `${words}/200 words` },
-        { ok: paras >= 4, label: `${paras}/4 paragraphs` },
-      ]
-    : [
-        { ok: sentences >= 5, label: `${sentences}/5 sentences` },
-        { ok: true, label: `${words} words` },
-      ];
+  const checks =
+    kind === "essay"
+      ? [
+          { ok: words >= 200, label: `${words}/200 words` },
+          { ok: paras >= 4, label: `${paras}/4 paragraphs` },
+        ]
+      : kind === "table"
+        ? [
+            { ok: words >= 150, label: `${words}/150 words` },
+            { ok: paras >= 3, label: `${paras}/3 paragraphs` },
+          ]
+        : [
+            { ok: sentences >= 5, label: `${sentences}/5 sentences` },
+            { ok: true, label: `${words} words` },
+          ];
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -117,15 +123,15 @@ export default function EditForm({
         className="font-display text-4xl md:text-5xl leading-[1] tracking-tight text-ink"
         data-reveal
       >
-        Edit {isEssay ? "essay" : "journal"}.
+        Edit {kind}.
       </h1>
-      {isEssay && topicTitle && (
+      {contextTitle && kind !== "journal" && (
         <p
           className="mt-3 font-reading italic text-ink-muted leading-relaxed max-w-2xl"
           data-reveal
           style={{ "--d": "90ms" } as React.CSSProperties}
         >
-          {topicTitle}
+          {contextTitle}
         </p>
       )}
 

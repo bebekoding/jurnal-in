@@ -27,12 +27,20 @@ type Row = {
   content: string;
   createdAt: Date;
   topicId?: string | null;
+  tableTopicId?: string | null;
   _count: { reviews: number };
   topic?: { title: string } | null;
+  tableTopic?: { title: string } | null;
 };
 
+function kindOf(j: Row): { label: string; accent: boolean } {
+  if (j.tableTopicId || j.tableTopic) return { label: "Table", accent: false };
+  if (j.topicId || j.topic) return { label: "Essay", accent: true };
+  return { label: "Journal", accent: false };
+}
+
 function EntryCard({ j, index }: { j: Row; index: number }) {
-  const isEssay = !!j.topicId || !!j.topic;
+  const kind = kindOf(j);
   return (
     <li
       data-reveal
@@ -45,10 +53,10 @@ function EntryCard({ j, index }: { j: Row; index: number }) {
         </div>
         <span
           className={`inline-block text-[10px] uppercase tracking-widest font-semibold mb-1.5 ${
-            isEssay ? "text-accent" : "text-ink-subtle"
+            kind.accent ? "text-accent" : "text-ink-subtle"
           }`}
         >
-          {isEssay ? "Essay" : "Journal"}
+          {kind.label}
         </span>
         <h3 className="font-display text-xl text-ink leading-tight">
           {j.title}
@@ -76,8 +84,10 @@ export default async function HomePage() {
         content: true,
         createdAt: true,
         topicId: true,
+        tableTopicId: true,
         _count: { select: { reviews: true } },
         topic: { select: { title: true } },
+        tableTopic: { select: { title: true } },
       },
       take: 100,
     })
@@ -100,9 +110,13 @@ export default async function HomePage() {
       .catch(() => []);
   }
 
-  const essays = journals.filter((j) => j.topicId || j.topic);
-  const dailies = journals.filter((j) => !j.topicId && !j.topic);
-  const distinctAuthors = new Set(journals.map((j) => j.authorName)).size;
+  const tables = journals.filter((j) => j.tableTopicId || j.tableTopic);
+  const essays = journals.filter(
+    (j) => (j.topicId || j.topic) && !(j.tableTopicId || j.tableTopic)
+  );
+  const dailies = journals.filter(
+    (j) => !j.topicId && !j.topic && !j.tableTopicId && !j.tableTopic
+  );
 
   return (
     <div className="space-y-16">
@@ -167,10 +181,10 @@ export default async function HomePage() {
             </div>
             <div>
               <div className="font-display text-3xl text-ink">
-                {distinctAuthors}
+                {tables.length}
               </div>
               <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
-                Writers
+                Tables
               </div>
             </div>
           </div>
@@ -187,43 +201,29 @@ export default async function HomePage() {
         </div>
       )}
 
-      {essays.length > 0 && (
-        <section>
-          <div
-            className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
-            data-reveal
-          >
-            <h2 className="font-display text-xl text-ink">Essays</h2>
-            <span className="text-xs text-ink-muted tabular">
-              {essays.length}
-            </span>
-          </div>
-          <ul className="grid gap-5 md:grid-cols-2">
-            {essays.map((j, i) => (
-              <EntryCard key={j.id} j={j} index={i} />
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {dailies.length > 0 && (
-        <section>
-          <div
-            className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
-            data-reveal
-          >
-            <h2 className="font-display text-xl text-ink">Journals</h2>
-            <span className="text-xs text-ink-muted tabular">
-              {dailies.length}
-            </span>
-          </div>
-          <ul className="grid gap-5 md:grid-cols-2">
-            {dailies.map((j, i) => (
-              <EntryCard key={j.id} j={j} index={i} />
-            ))}
-          </ul>
-        </section>
-      )}
+      <Section title="Journals" rows={dailies} />
+      <Section title="Essays" rows={essays} />
+      <Section title="Tables" rows={tables} />
     </div>
+  );
+}
+
+function Section({ title, rows }: { title: string; rows: Row[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <section>
+      <div
+        className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
+        data-reveal
+      >
+        <h2 className="font-display text-xl text-ink">{title}</h2>
+        <span className="text-xs text-ink-muted tabular">{rows.length}</span>
+      </div>
+      <ul className="grid gap-5 md:grid-cols-2">
+        {rows.map((j, i) => (
+          <EntryCard key={j.id} j={j} index={i} />
+        ))}
+      </ul>
+    </section>
   );
 }

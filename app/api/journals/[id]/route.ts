@@ -24,7 +24,13 @@ export async function PATCH(
 
   const existing = await prisma.journal.findUnique({
     where: { id: params.id },
-    select: { id: true, authorName: true, topicId: true, createdAt: true },
+    select: {
+      id: true,
+      authorName: true,
+      topicId: true,
+      tableTopicId: true,
+      createdAt: true,
+    },
   });
   if (!existing) return new NextResponse("Not found", { status: 404 });
   if (existing.authorName !== authorName) {
@@ -34,7 +40,22 @@ export async function PATCH(
   }
 
   const isEssay = !!existing.topicId;
-  if (isEssay) {
+  const isTable = !!existing.tableTopicId;
+  if (isTable) {
+    const words = content.split(/\s+/).filter(Boolean).length;
+    const paras = paragraphCount(content);
+    if (words < 150) {
+      return new NextResponse(`Task 1 needs at least 150 words (${words}).`, {
+        status: 400,
+      });
+    }
+    if (paras < 3) {
+      return new NextResponse(
+        `Task 1 needs at least 3 paragraphs (${paras}). Separate paragraphs with a blank line.`,
+        { status: 400 }
+      );
+    }
+  } else if (isEssay) {
     const words = content.split(/\s+/).filter(Boolean).length;
     const paras = paragraphCount(content);
     if (words < 200) {
@@ -68,8 +89,8 @@ export async function PATCH(
     const next = new Date(orig);
     next.setUTCFullYear(y, m - 1, d);
     data.createdAt = next;
-    if (!isEssay) {
-      // Journals show the date as their title.
+    if (!isEssay && !isTable) {
+      // Daily journals show the date as their title.
       data.title = formatDateLong(date);
     }
   }
