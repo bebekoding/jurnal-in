@@ -10,8 +10,19 @@ type Journal = {
   title: string;
   content: string;
   createdAt: string;
+  topicId?: string | null;
+  tableTopicId?: string | null;
+  topic?: { title: string } | null;
   tableTopic?: { title: string; tableMarkdown: string } | null;
 };
+
+type TypeFilter = "all" | "journal" | "essay" | "table";
+
+function kindOf(j: Journal): "journal" | "essay" | "table" {
+  if (j.tableTopicId || j.tableTopic) return "table";
+  if (j.topicId || j.topic) return "essay";
+  return "journal";
+}
 
 const REVIEW_PROMPT = `You are an experienced IELTS Writing examiner. Below are journal entries from a study group practicing IELTS-style writing. For each entry, respond in this format:
 
@@ -80,6 +91,7 @@ export default function ExportPage() {
   const [from, setFrom] = useState(daysAgo(7));
   const [to, setTo] = useState(ymd(new Date()));
   const [author, setAuthor] = useState("All");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [includePrompt, setIncludePrompt] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -102,13 +114,14 @@ export default function ExportPage() {
         const t = new Date(j.createdAt).getTime();
         if (t < fromT || t > toT) return false;
         if (author !== "All" && j.authorName !== author) return false;
+        if (typeFilter !== "all" && kindOf(j) !== typeFilter) return false;
         return true;
       })
       .sort(
         (a, b) =>
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
-  }, [journals, from, to, author]);
+  }, [journals, from, to, author, typeFilter]);
 
   const output = useMemo(() => {
     const header = includePrompt ? REVIEW_PROMPT : "";
@@ -117,10 +130,16 @@ export default function ExportPage() {
         const wc = wordCount(j.content);
         const sc = sentenceCount(j.content);
         const date = formatDateLong(new Date(j.createdAt));
-        const tableBlock = j.tableTopic
-          ? `Task 1 table — ${j.tableTopic.title}\n\n${j.tableTopic.tableMarkdown}\n\n`
-          : "";
-        return `### ${i + 1}. ${j.authorName}, ${date} (${wc} words, ${sc} sentences)\n\n${tableBlock}${j.content.trim()}`;
+        const kind = kindOf(j);
+        const kindLabel =
+          kind === "table" ? "Task 1 (table)" : kind === "essay" ? "Task 2 (essay)" : "Journal";
+        const promptBlock =
+          j.tableTopic
+            ? `Task 1 table — ${j.tableTopic.title}\n\n${j.tableTopic.tableMarkdown}\n\n`
+            : j.topic
+              ? `Task 2 prompt — ${j.topic.title}\n\n`
+              : "";
+        return `### ${i + 1}. ${j.authorName}, ${date} — ${kindLabel} (${wc} words, ${sc} sentences)\n\n${promptBlock}${j.content.trim()}`;
       })
       .join("\n\n---\n\n");
     return header + entries;
@@ -157,58 +176,75 @@ export default function ExportPage() {
       </header>
 
       <section
-        className="card p-5 grid md:grid-cols-4 gap-4"
+        className="card p-5 space-y-4"
         data-reveal
         style={{ "--d": "180ms" } as React.CSSProperties}
       >
-        <div>
-          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            From
-          </label>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="w-full h-10 px-2 text-sm tabular"
-          />
+        <div className="grid md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
+              From
+            </label>
+            <input
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              className="w-full h-10 px-2 text-sm tabular"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
+              To
+            </label>
+            <input
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              className="w-full h-10 px-2 text-sm tabular"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
+              Writer
+            </label>
+            <select
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              className="w-full h-10 px-2 text-sm"
+            >
+              <option value="All">All</option>
+              {PARTICIPANTS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
+              Type
+            </label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+              className="w-full h-10 px-2 text-sm"
+            >
+              <option value="all">All</option>
+              <option value="journal">Journal</option>
+              <option value="essay">Essay (Task 2)</option>
+              <option value="table">Table (Task 1)</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            To
-          </label>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="w-full h-10 px-2 text-sm tabular"
-          />
-        </div>
-        <div>
-          <label className="block text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-1.5">
-            Writer
-          </label>
-          <select
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            className="w-full h-10 px-2 text-sm"
-          >
-            <option value="All">All</option>
-            {PARTICIPANTS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-end pb-1">
-          <label className="flex items-center gap-2 text-sm text-ink-muted">
+        <div className="pt-1 border-t border-ink/10">
+          <label className="flex items-center gap-2 text-sm text-ink-muted pt-3">
             <input
               type="checkbox"
               checked={includePrompt}
               onChange={(e) => setIncludePrompt(e.target.checked)}
               className="accent-[#1d2b1f] w-4 h-4"
             />
-            Include prompt
+            Include review prompt at the top
           </label>
         </div>
       </section>
