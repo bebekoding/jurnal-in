@@ -103,7 +103,9 @@ export default async function HomePage() {
           title: true,
           content: true,
           createdAt: true,
+          topicId: true,
           _count: { select: { reviews: true } },
+          topic: { select: { title: true } },
         },
         take: 100,
       })

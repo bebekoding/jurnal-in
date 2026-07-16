@@ -31,7 +31,9 @@ export async function GET() {
         title: true,
         content: true,
         createdAt: true,
+        topicId: true,
         _count: { select: { reviews: true } },
+        topic: { select: { id: true, title: true } },
       },
       take: 100,
     });
