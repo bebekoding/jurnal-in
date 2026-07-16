@@ -19,10 +19,19 @@ function paragraphCount(text: string) {
     .filter((p) => p.trim().length > 0).length;
 }
 
+function todayISO() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+}
+
 export default function WriteForm({ topicId }: { topicId: string }) {
   const router = useRouter();
   const { name } = useIdentity();
   const [content, setContent] = useState("");
+  const [date, setDate] = useState(todayISO());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +95,7 @@ export default function WriteForm({ topicId }: { topicId: string }) {
           topicId,
           content: content.trim(),
           durationSeconds: startedAt ? elapsed : null,
+          writtenAt: date,
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -179,6 +189,19 @@ export default function WriteForm({ topicId }: { topicId: string }) {
               Writer
             </div>
             <div className="font-display text-lg text-ink">{name}</div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+              Date written
+            </label>
+            <input
+              type="date"
+              value={date}
+              max={todayISO()}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full h-11 px-3 text-sm tabular"
+            />
           </div>
 
           {error && (

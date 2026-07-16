@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PARTICIPANTS } from "@/lib/participants";
 import { paragraphCount, sentenceCount } from "@/lib/text";
+import { parseWrittenAt } from "@/lib/date";
 
 export async function GET() {
   try {
@@ -132,6 +133,8 @@ export async function POST(req: Request) {
     if (d >= 0 && d < 60 * 60 * 24) durationSeconds = d;
   }
 
+  const writtenAt = parseWrittenAt(body.writtenAt);
+
   try {
     const journal = await prisma.journal.create({
       data: {
@@ -141,6 +144,7 @@ export async function POST(req: Request) {
         topicId: topicId || null,
         tableTopicId: tableTopicId || null,
         ...(durationSeconds !== null ? { durationSeconds } : {}),
+        ...(writtenAt ? { createdAt: writtenAt } : {}),
       },
       select: { id: true },
     });
@@ -153,6 +157,7 @@ export async function POST(req: Request) {
         title,
         content,
         topicId: topicId || null,
+        ...(writtenAt ? { createdAt: writtenAt } : {}),
       },
       select: { id: true },
     });

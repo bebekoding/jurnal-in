@@ -1,9 +1,10 @@
 import { isoDateJakarta, todayJakartaISO, addDaysISO } from "@/lib/date";
 
 /**
- * Count consecutive writing days ending today (Jakarta TZ).
- * If the user hasn't written today yet but wrote yesterday, the streak
- * still counts from yesterday backwards — same grace-day rule as Duolingo.
+ * Count consecutive days (Jakarta TZ) on which the writer submitted at
+ * least one entry — journal, essay, or table all count. If today has no
+ * entry yet but yesterday does, streak still counts from yesterday
+ * backwards (Duolingo-style grace day).
  */
 export function computeStreak(dates: Date[]): number {
   if (dates.length === 0) return 0;

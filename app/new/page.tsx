@@ -65,6 +65,7 @@ export default function NewJournalPage() {
           authorName: name,
           title: formatDateLong(date),
           content: content.trim(),
+          writtenAt: date,
         }),
       });
       if (!res.ok) throw new Error(await res.text());

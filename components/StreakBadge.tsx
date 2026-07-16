@@ -60,7 +60,7 @@ export function StreakBadge({
       ) : (
         <div className="flex items-center gap-2 text-xs text-ink-subtle">
           <Flame size={16} weight="regular" className="shrink-0" aria-hidden />
-          No streaks yet — write today to start one.
+          No streaks yet — any entry today starts one.
         </div>
       )}
     </div>

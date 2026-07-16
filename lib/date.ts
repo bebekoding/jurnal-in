@@ -35,3 +35,23 @@ export function addDaysISO(iso: string, n: number): string {
   const dd = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${dd}`;
 }
+
+/**
+ * Parse a yyyy-mm-dd string from a form input into a UTC-noon Date so the day
+ * survives Jakarta timezone shifts either way. Returns null on invalid input,
+ * future dates, or dates more than 90 days in the past.
+ */
+export function parseWrittenAt(input: unknown): Date | null {
+  if (typeof input !== "string") return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) return null;
+
+  const today = todayJakartaISO();
+  const earliest = addDaysISO(today, -90);
+  if (input > today) return null;
+  if (input < earliest) return null;
+
+  // Noon UTC anchors the date safely inside a single Jakarta calendar day.
+  const d = new Date(`${input}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return null;
+  return d;
+}
