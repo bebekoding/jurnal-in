@@ -20,8 +20,53 @@ function wordCount(text: string) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+type Row = {
+  id: string;
+  authorName: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  topicId?: string | null;
+  _count: { reviews: number };
+  topic?: { title: string } | null;
+};
+
+function EntryCard({ j, index }: { j: Row; index: number }) {
+  const isEssay = !!j.topicId || !!j.topic;
+  return (
+    <li
+      data-reveal
+      style={{ "--d": `${(index % 4) * 70}ms` } as React.CSSProperties}
+    >
+      <Link href={`/journals/${j.id}`} className="card block p-6 h-full">
+        <div className="flex items-center justify-between text-xs text-ink-muted tabular mb-3">
+          <span className="font-semibold text-ink">{j.authorName}</span>
+          <span>{formatDate(j.createdAt)}</span>
+        </div>
+        <span
+          className={`inline-block text-[10px] uppercase tracking-widest font-semibold mb-1.5 ${
+            isEssay ? "text-accent" : "text-ink-subtle"
+          }`}
+        >
+          {isEssay ? "Essay" : "Journal"}
+        </span>
+        <h3 className="font-display text-xl text-ink leading-tight">
+          {j.title}
+        </h3>
+        <p className="mt-2 font-reading text-[15px] text-ink-muted leading-relaxed">
+          {excerpt(j.content)}
+        </p>
+        <div className="mt-4 pt-3 border-t border-ink/15 flex justify-between text-xs text-ink-muted tabular">
+          <span>{wordCount(j.content)} words</span>
+          <span>{j._count.reviews} reviews</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
 export default async function HomePage() {
-  let journals: any[] = await prisma.journal
+  let journals: Row[] = await prisma.journal
     .findMany({
       orderBy: { createdAt: "desc" },
       select: {
@@ -34,7 +79,7 @@ export default async function HomePage() {
         _count: { select: { reviews: true } },
         topic: { select: { title: true } },
       },
-      take: 50,
+      take: 100,
     })
     .catch(() => null as any);
 
@@ -50,16 +95,17 @@ export default async function HomePage() {
           createdAt: true,
           _count: { select: { reviews: true } },
         },
-        take: 50,
+        take: 100,
       })
       .catch(() => []);
   }
 
-  const totalWords = journals.reduce((s, j) => s + wordCount(j.content), 0);
+  const essays = journals.filter((j) => j.topicId || j.topic);
+  const dailies = journals.filter((j) => !j.topicId && !j.topic);
   const distinctAuthors = new Set(journals.map((j) => j.authorName)).size;
 
   return (
-    <div className="space-y-14">
+    <div className="space-y-16">
       <section className="grid md:grid-cols-12 gap-8 items-end">
         <div className="md:col-span-8">
           <h1 className="font-display text-[clamp(2.75rem,6vw,5rem)] leading-[0.98] tracking-tight text-ink">
@@ -105,18 +151,18 @@ export default async function HomePage() {
           <div className="grid grid-cols-3 gap-4 tabular">
             <div>
               <div className="font-display text-3xl text-ink">
-                {journals.length}
+                {dailies.length}
               </div>
               <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
-                Entries
+                Journals
               </div>
             </div>
             <div>
               <div className="font-display text-3xl text-ink">
-                {totalWords.toLocaleString("en-US")}
+                {essays.length}
               </div>
               <div className="text-[11px] uppercase tracking-wider text-ink-muted mt-1">
-                Words
+                Essays
               </div>
             </div>
             <div>
@@ -131,61 +177,53 @@ export default async function HomePage() {
         </aside>
       </section>
 
-      <section>
-        <div
-          className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
-          data-reveal
-        >
-          <h2 className="font-display text-xl text-ink">Latest entries</h2>
-          <span className="text-xs text-ink-muted tabular">
-            {journals.length} entries
-          </span>
+      {journals.length === 0 && (
+        <div className="card p-10 text-center text-ink-muted" data-reveal>
+          Nothing here yet.{" "}
+          <Link href="/new" className="link">
+            Write the first one
+          </Link>
+          .
         </div>
+      )}
 
-        {journals.length === 0 ? (
-          <div className="card p-10 text-center text-ink-muted" data-reveal>
-            Nothing here yet.{" "}
-            <Link href="/new" className="link">
-              Write the first one
-            </Link>
-            .
+      {essays.length > 0 && (
+        <section>
+          <div
+            className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
+            data-reveal
+          >
+            <h2 className="font-display text-xl text-ink">Essays</h2>
+            <span className="text-xs text-ink-muted tabular">
+              {essays.length}
+            </span>
           </div>
-        ) : (
           <ul className="grid gap-5 md:grid-cols-2">
-            {journals.map((j, i) => (
-              <li
-                key={j.id}
-                data-reveal
-                style={{ "--d": `${(i % 4) * 70}ms` } as React.CSSProperties}
-              >
-                <Link href={`/journals/${j.id}`} className="card block p-6 h-full">
-                  <div className="flex items-center justify-between text-xs text-ink-muted tabular mb-3">
-                    <span className="font-semibold text-ink">
-                      {j.authorName}
-                    </span>
-                    <span>{formatDate(j.createdAt)}</span>
-                  </div>
-                  {j.topic && (
-                    <span className="inline-block text-[10px] uppercase tracking-widest font-semibold text-accent mb-1.5">
-                      Essay
-                    </span>
-                  )}
-                  <h3 className="font-display text-xl text-ink leading-tight">
-                    {j.title}
-                  </h3>
-                  <p className="mt-2 font-reading text-[15px] text-ink-muted leading-relaxed">
-                    {excerpt(j.content)}
-                  </p>
-                  <div className="mt-4 pt-3 border-t border-ink/15 flex justify-between text-xs text-ink-muted tabular">
-                    <span>{wordCount(j.content)} words</span>
-                    <span>{j._count.reviews} reviews</span>
-                  </div>
-                </Link>
-              </li>
+            {essays.map((j, i) => (
+              <EntryCard key={j.id} j={j} index={i} />
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
+
+      {dailies.length > 0 && (
+        <section>
+          <div
+            className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3 mb-4"
+            data-reveal
+          >
+            <h2 className="font-display text-xl text-ink">Journals</h2>
+            <span className="text-xs text-ink-muted tabular">
+              {dailies.length}
+            </span>
+          </div>
+          <ul className="grid gap-5 md:grid-cols-2">
+            {dailies.map((j, i) => (
+              <EntryCard key={j.id} j={j} index={i} />
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Circle, ArrowLeft } from "@phosphor-icons/react";
-import { PARTICIPANTS } from "@/lib/participants";
+import { useIdentity } from "@/components/Identity";
 
 function todayISO() {
   const d = new Date();
@@ -33,18 +33,11 @@ const MIN_SENTENCES = 5;
 
 export default function NewJournalPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const { name } = useIdentity();
   const [date, setDate] = useState(todayISO());
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("jurnal.name");
-    if (saved && (PARTICIPANTS as readonly string[]).includes(saved)) {
-      setName(saved);
-    }
-  }, []);
 
   const words = content.trim().split(/\s+/).filter(Boolean).length;
   const sentences = countSentences(content);
@@ -53,8 +46,8 @@ export default function NewJournalPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!name.trim() || !date.trim() || !content.trim()) {
-      setError("Writer, date, and your writing are all required.");
+    if (!name || !date.trim() || !content.trim()) {
+      setError("Date and your writing are required.");
       return;
     }
     if (!sentencesOK) {
@@ -64,13 +57,12 @@ export default function NewJournalPage() {
       return;
     }
     setSubmitting(true);
-    localStorage.setItem("jurnal.name", name.trim());
     try {
       const res = await fetch("/api/journals", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          authorName: name.trim(),
+          authorName: name,
           title: formatDateLong(date),
           content: content.trim(),
         }),
@@ -150,21 +142,10 @@ export default function NewJournalPage() {
         >
           <div className="card p-6 space-y-5 md:sticky md:top-24">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+              <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-1">
                 Writer
-              </label>
-              <select
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full h-11 px-3 text-sm"
-              >
-                <option value="">Select name</option>
-                {PARTICIPANTS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
+              </div>
+              <div className="font-display text-lg text-ink">{name}</div>
             </div>
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">

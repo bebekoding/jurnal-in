@@ -4,6 +4,7 @@ import { ArrowLeft, Timer } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import { formatDurationLong } from "@/lib/time";
 import ReviewForm from "./ReviewForm";
+import OwnerActions from "./OwnerActions";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export default async function JournalDetailPage({
         title: true,
         content: true,
         createdAt: true,
+        topicId: true,
         durationSeconds: true,
         reviews: { orderBy: { createdAt: "asc" } },
         topic: { select: { id: true, title: true } },
@@ -43,7 +45,6 @@ export default async function JournalDetailPage({
     .catch(() => null);
 
   if (journal === null) {
-    // Fallback: durationSeconds column may not exist yet in the DB
     journal = await prisma.journal
       .findUnique({
         where: { id: params.id },
@@ -53,6 +54,7 @@ export default async function JournalDetailPage({
           title: true,
           content: true,
           createdAt: true,
+          topicId: true,
           reviews: { orderBy: { createdAt: "asc" } },
           topic: { select: { id: true, title: true } },
         },
@@ -62,26 +64,33 @@ export default async function JournalDetailPage({
 
   if (!journal) notFound();
 
+  const isEssay = !!journal.topicId || !!journal.topic;
+
   return (
     <div className="max-w-3xl space-y-8">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
-      >
-        <ArrowLeft size={14} weight="bold" />
-        Home
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition"
+        >
+          <ArrowLeft size={14} weight="bold" />
+          Home
+        </Link>
+        <OwnerActions journalId={journal.id} authorName={journal.authorName} />
+      </div>
 
       <article className="card bg-paper-raised p-6 md:p-10" data-reveal>
-        {journal.topic && (
-          <span className="inline-block text-[10px] uppercase tracking-widest font-semibold text-accent mb-2">
-            Essay
-          </span>
-        )}
+        <span
+          className={`inline-block text-[10px] uppercase tracking-widest font-semibold mb-2 ${
+            isEssay ? "text-accent" : "text-ink-subtle"
+          }`}
+        >
+          {isEssay ? "Essay" : "Journal"}
+        </span>
         <h1 className="font-display text-3xl md:text-4xl leading-[1.05] tracking-tight text-ink">
           {journal.title}
         </h1>
-        {journal.topic && (
+        {isEssay && journal.topic && (
           <p className="mt-3 font-reading italic text-ink-muted leading-relaxed">
             {journal.topic.title}
           </p>
@@ -91,11 +100,11 @@ export default async function JournalDetailPage({
           <span className="font-semibold text-ink">{journal.authorName}</span>
           <span>{formatDate(journal.createdAt)}</span>
           <span>{wordCount(journal.content)} words</span>
-          {typeof (journal as any).durationSeconds === "number" &&
-            (journal as any).durationSeconds > 0 && (
+          {typeof journal.durationSeconds === "number" &&
+            journal.durationSeconds > 0 && (
               <span className="inline-flex items-center gap-1">
                 <Timer size={12} weight="bold" />
-                {formatDurationLong((journal as any).durationSeconds)}
+                {formatDurationLong(journal.durationSeconds)}
               </span>
             )}
         </div>

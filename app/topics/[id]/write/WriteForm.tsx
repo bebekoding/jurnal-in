@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle, Circle, Timer } from "@phosphor-icons/react";
-import { PARTICIPANTS } from "@/lib/participants";
+import { useIdentity } from "@/components/Identity";
 import { formatDuration } from "@/lib/time";
 
 const MIN_WORDS = 200;
@@ -21,7 +21,7 @@ function paragraphCount(text: string) {
 
 export default function WriteForm({ topicId }: { topicId: string }) {
   const router = useRouter();
-  const [name, setName] = useState("");
+  const { name } = useIdentity();
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +29,6 @@ export default function WriteForm({ topicId }: { topicId: string }) {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const startedAtRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("jurnal.name");
-    if (saved && (PARTICIPANTS as readonly string[]).includes(saved)) {
-      setName(saved);
-    }
-  }, []);
 
   useEffect(() => {
     if (!startedAt) return;
@@ -69,8 +62,8 @@ export default function WriteForm({ topicId }: { topicId: string }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!name.trim() || !content.trim()) {
-      setError("Writer and essay are both required.");
+    if (!name || !content.trim()) {
+      setError("Your essay is required.");
       return;
     }
     if (!wordsOK) {
@@ -84,13 +77,12 @@ export default function WriteForm({ topicId }: { topicId: string }) {
       return;
     }
     setSubmitting(true);
-    localStorage.setItem("jurnal.name", name.trim());
     try {
       const res = await fetch("/api/journals", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          authorName: name.trim(),
+          authorName: name,
           topicId,
           content: content.trim(),
           durationSeconds: startedAt ? elapsed : null,
@@ -183,21 +175,10 @@ export default function WriteForm({ topicId }: { topicId: string }) {
           </div>
 
           <div className="border-t border-ink/15 pt-5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
+            <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-1">
               Writer
-            </label>
-            <select
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full h-11 px-3 text-sm"
-            >
-              <option value="">Select name</option>
-              {PARTICIPANTS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+            </div>
+            <div className="font-display text-lg text-ink">{name}</div>
           </div>
 
           {error && (

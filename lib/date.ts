@@ -19,6 +19,14 @@ export function formatDateLong(iso: string | Date): string {
   });
 }
 
+export function isoDateJakarta(d: Date): string {
+  const jakarta = new Date(d.toLocaleString("en-US", { timeZone: TZ }));
+  const y = jakarta.getFullYear();
+  const m = String(jakarta.getMonth() + 1).padStart(2, "0");
+  const day = String(jakarta.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export function addDaysISO(iso: string, n: number): string {
   const d = new Date(iso + "T00:00:00");
   d.setDate(d.getDate() + n);
