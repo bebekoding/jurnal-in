@@ -9,10 +9,18 @@ import { LogoMark, Wordmark, LogoLockup } from "@/components/Logo";
 import { Nav } from "@/components/Nav";
 import { Fx } from "@/components/Fx";
 
-export function Shell({ children }: { children: ReactNode }) {
+export function Shell({
+  children,
+  isBot = false,
+}: {
+  children: ReactNode;
+  isBot?: boolean;
+}) {
   const { name, ready, setName } = useIdentity();
 
-  if (!ready) {
+  // Bots (link-preview crawlers, search engines) skip the identity gate
+  // so they see the actual content and OG-relevant markup, not the picker.
+  if (!isBot && !ready) {
     return (
       <div className="min-h-[100dvh] grid place-items-center">
         <LogoMark size={44} className="text-ink animate-pulse" />
@@ -20,7 +28,7 @@ export function Shell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!name) {
+  if (!isBot && !name) {
     return <WelcomePicker onPick={setName} />;
   }
 
@@ -34,7 +42,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </Link>
           <div className="flex items-center gap-3">
             <Nav />
-            <WriterMenu />
+            {!isBot && <WriterMenu />}
           </div>
         </div>
       </header>

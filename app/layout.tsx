@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { bricolage, newsreader } from "./fonts";
 import { IdentityProvider } from "@/components/Identity";
 import { Shell } from "@/components/Shell";
+import { isBotUserAgent } from "@/lib/ua";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -36,11 +38,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isBot = isBotUserAgent(headers().get("user-agent"));
+
   return (
     <html lang="en" className={`${bricolage.variable} ${newsreader.variable}`}>
       <body className="font-sans">
         <IdentityProvider>
-          <Shell>{children}</Shell>
+          <Shell isBot={isBot}>{children}</Shell>
         </IdentityProvider>
       </body>
     </html>

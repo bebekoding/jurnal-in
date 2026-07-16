@@ -40,10 +40,25 @@ export function Fx() {
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
+      { threshold: 0, rootMargin: "0px 0px 15% 0px" }
     );
     els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+
+    // Safety net: fast scroll can outrun the observer callback on mobile.
+    // After 500ms, reveal anything still hidden so nothing stays invisible.
+    const fallback = window.setTimeout(() => {
+      els.forEach((el) => {
+        if (!el.classList.contains("is-in")) {
+          el.classList.add("is-in");
+          io.unobserve(el);
+        }
+      });
+    }, 500);
+
+    return () => {
+      io.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, [pathname]);
 
   return null;
