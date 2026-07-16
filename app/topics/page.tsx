@@ -105,7 +105,11 @@ export default async function TopicsPage() {
               data-reveal
               style={{ "--d": "90ms" } as React.CSSProperties}
             >
-              {mode === "featured" ? "essay." : "topic."}
+              {mode === "featured"
+                ? topics.length > 1
+                  ? "essays."
+                  : "essay."
+                : "topic."}
             </span>
           </h1>
           <p
@@ -114,7 +118,9 @@ export default async function TopicsPage() {
             style={{ "--d": "180ms" } as React.CSSProperties}
           >
             {mode === "featured"
-              ? "Featured essay only for today. Four paragraphs and 200 words minimum, in English."
+              ? topics.length > 1
+                ? "Featured essays for today, picked from this week's news. Four paragraphs and 200 words minimum, in English."
+                : "Featured essay only for today. Four paragraphs and 200 words minimum, in English."
               : "Pick one. Four paragraphs and 200 words minimum, in English."}
           </p>
         </div>
@@ -127,7 +133,9 @@ export default async function TopicsPage() {
           <span className="text-ink-muted">
             {" · "}
             {mode === "featured"
-              ? "featured essay"
+              ? topics.length > 1
+                ? `${topics.length} featured essays`
+                : "featured essay"
               : freshCount > 0
                 ? `${freshCount} unused of ${poolSize}`
                 : `pool of ${poolSize}, rotating`}
