@@ -1,82 +1,20 @@
 import Link from "next/link";
-import { PencilSimpleLine, Target } from "@phosphor-icons/react/dist/ssr";
+import {
+  PencilSimpleLine,
+  Target,
+  ArrowRight,
+} from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import { streaksByAuthor } from "@/lib/streak";
 import { StreakBadge } from "@/components/StreakBadge";
+import { EntryCard, type EntryRow } from "@/components/EntryCard";
+
+const SECTION_LIMIT = 6;
 
 export const dynamic = "force-dynamic";
 
-function formatDate(d: Date) {
-  return new Date(d).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-  });
-}
-
-function excerpt(text: string, n = 200) {
-  const clean = text.replace(/\s+/g, " ").trim();
-  return clean.length > n ? clean.slice(0, n) + "…" : clean;
-}
-
-function wordCount(text: string) {
-  return text.trim().split(/\s+/).filter(Boolean).length;
-}
-
-type Row = {
-  id: string;
-  authorName: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  topicId?: string | null;
-  tableTopicId?: string | null;
-  _count: { reviews: number };
-  topic?: { title: string } | null;
-  tableTopic?: { title: string } | null;
-};
-
-function kindOf(j: Row): { label: string; accent: boolean } {
-  if (j.tableTopicId || j.tableTopic) return { label: "Table", accent: false };
-  if (j.topicId || j.topic) return { label: "Essay", accent: true };
-  return { label: "Journal", accent: false };
-}
-
-function EntryCard({ j, index }: { j: Row; index: number }) {
-  const kind = kindOf(j);
-  return (
-    <li
-      data-reveal
-      style={{ "--d": `${(index % 4) * 70}ms` } as React.CSSProperties}
-    >
-      <Link href={`/journals/${j.id}`} className="card block p-6 h-full">
-        <div className="flex items-center justify-between text-xs text-ink-muted tabular mb-3">
-          <span className="font-semibold text-ink">{j.authorName}</span>
-          <span>{formatDate(j.createdAt)}</span>
-        </div>
-        <span
-          className={`inline-block text-[10px] uppercase tracking-widest font-semibold mb-1.5 ${
-            kind.accent ? "text-accent" : "text-ink-subtle"
-          }`}
-        >
-          {kind.label}
-        </span>
-        <h3 className="font-display text-xl text-ink leading-tight">
-          {j.title}
-        </h3>
-        <p className="mt-2 font-reading text-[15px] text-ink-muted leading-relaxed">
-          {excerpt(j.content)}
-        </p>
-        <div className="mt-4 pt-3 border-t border-ink/15 flex justify-between text-xs text-ink-muted tabular">
-          <span>{wordCount(j.content)} words</span>
-          <span>{j._count.reviews} reviews</span>
-        </div>
-      </Link>
-    </li>
-  );
-}
-
 export default async function HomePage() {
-  let journals: Row[] = await prisma.journal
+  let journals: EntryRow[] = await prisma.journal
     .findMany({
       orderBy: { createdAt: "desc" },
       select: {
@@ -215,15 +153,25 @@ export default async function HomePage() {
         </div>
       )}
 
-      <Section title="Journals" rows={dailies} />
-      <Section title="Essays" rows={essays} />
-      <Section title="Tables" rows={tables} />
+      <Section title="Journals" rows={dailies} type="journal" />
+      <Section title="Essays" rows={essays} type="essay" />
+      <Section title="Tables" rows={tables} type="table" />
     </div>
   );
 }
 
-function Section({ title, rows }: { title: string; rows: Row[] }) {
+function Section({
+  title,
+  rows,
+  type,
+}: {
+  title: string;
+  rows: EntryRow[];
+  type: "journal" | "essay" | "table";
+}) {
   if (rows.length === 0) return null;
+  const visible = rows.slice(0, SECTION_LIMIT);
+  const overflow = rows.length - visible.length;
   return (
     <section>
       <div
@@ -234,10 +182,22 @@ function Section({ title, rows }: { title: string; rows: Row[] }) {
         <span className="text-xs text-ink-muted tabular">{rows.length}</span>
       </div>
       <ul className="grid gap-5 md:grid-cols-2">
-        {rows.map((j, i) => (
+        {visible.map((j, i) => (
           <EntryCard key={j.id} j={j} index={i} />
         ))}
       </ul>
+      {overflow > 0 && (
+        <div className="mt-6 flex justify-center" data-reveal>
+          <Link
+            href={`/feed?type=${type}`}
+            className="btn btn-secondary"
+            aria-label={`See all ${rows.length} ${title.toLowerCase()}`}
+          >
+            See all {rows.length} {title.toLowerCase()}
+            <ArrowRight size={16} weight="bold" />
+          </Link>
+        </div>
+      )}
     </section>
   );
 }
