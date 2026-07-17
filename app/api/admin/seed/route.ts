@@ -105,6 +105,26 @@ async function run(): Promise<any> {
       "add Review.rubricGrammar",
       `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "rubricGrammar" DOUBLE PRECISION`,
     ],
+    [
+      "create VocabItem",
+      `CREATE TABLE IF NOT EXISTS "VocabItem" (
+        "id" TEXT NOT NULL,
+        "authorName" TEXT NOT NULL,
+        "term" TEXT NOT NULL,
+        "meaning" TEXT,
+        "example" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "VocabItem_pkey" PRIMARY KEY ("id")
+      )`,
+    ],
+    [
+      "index VocabItem.authorName",
+      `CREATE INDEX IF NOT EXISTS "VocabItem_authorName_idx" ON "VocabItem"("authorName")`,
+    ],
+    [
+      "index VocabItem.createdAt",
+      `CREATE INDEX IF NOT EXISTS "VocabItem_createdAt_idx" ON "VocabItem"("createdAt")`,
+    ],
   ];
   for (const [label, sql] of schemaStmts) {
     try {
