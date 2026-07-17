@@ -75,21 +75,14 @@ export default async function HomePage() {
         <div className="md:col-span-8">
           <h1 className="font-display text-[clamp(2.75rem,6vw,5rem)] leading-[0.98] tracking-tight text-ink">
             <span className="block" data-reveal>
-              A shared notebook
+              Mastering IELTS
             </span>
             <span
               className="block italic font-reading font-medium"
               data-reveal
               style={{ "--d": "90ms" } as React.CSSProperties}
             >
-              for practicing
-            </span>
-            <span
-              className="block"
-              data-reveal
-              style={{ "--d": "180ms" } as React.CSSProperties}
-            >
-              IELTS writing.
+              in No Time!
             </span>
           </h1>
           <div
