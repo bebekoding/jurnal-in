@@ -89,6 +89,22 @@ async function run(): Promise<any> {
       "index ReadingResult.createdAt",
       `CREATE INDEX IF NOT EXISTS "ReadingResult_createdAt_idx" ON "ReadingResult"("createdAt")`,
     ],
+    [
+      "add Review.rubricTask",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "rubricTask" DOUBLE PRECISION`,
+    ],
+    [
+      "add Review.rubricCoherence",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "rubricCoherence" DOUBLE PRECISION`,
+    ],
+    [
+      "add Review.rubricLexical",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "rubricLexical" DOUBLE PRECISION`,
+    ],
+    [
+      "add Review.rubricGrammar",
+      `ALTER TABLE "Review" ADD COLUMN IF NOT EXISTS "rubricGrammar" DOUBLE PRECISION`,
+    ],
   ];
   for (const [label, sql] of schemaStmts) {
     try {

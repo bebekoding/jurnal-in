@@ -145,6 +145,7 @@ export default async function JournalDetailPage({
                     {formatDate(r.createdAt)}
                   </span>
                 </div>
+                <RubricBadges review={r} />
                 <p className="text-[15px] whitespace-pre-wrap leading-relaxed text-ink">
                   {r.comment}
                 </p>
@@ -155,6 +156,39 @@ export default async function JournalDetailPage({
 
         <ReviewForm journalId={journal.id} />
       </section>
+    </div>
+  );
+}
+
+function RubricBadges({ review }: { review: any }) {
+  const crit: [string, number | null][] = [
+    ["TR", review.rubricTask ?? null],
+    ["CC", review.rubricCoherence ?? null],
+    ["LR", review.rubricLexical ?? null],
+    ["GRA", review.rubricGrammar ?? null],
+  ];
+  const rated = crit.filter(([, v]) => typeof v === "number") as [
+    string,
+    number,
+  ][];
+  if (rated.length === 0) return null;
+  const overall = (
+    Math.round((rated.reduce((s, [, v]) => s + v, 0) / rated.length) * 2) / 2
+  ).toFixed(1);
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 mb-2 tabular">
+      {rated.map(([k, v]) => (
+        <span
+          key={k}
+          className="inline-flex items-center gap-1 rounded-full border border-ink/20 px-2 h-6 text-[11px] text-ink-muted"
+        >
+          <span className="font-semibold text-ink-subtle">{k}</span>
+          <span className="font-semibold text-ink">{v.toFixed(1)}</span>
+        </span>
+      ))}
+      <span className="inline-flex items-center gap-1 rounded-full border-[1.5px] border-ink bg-lime px-2.5 h-6 text-[11px] font-semibold text-ink">
+        Overall {overall}
+      </span>
     </div>
   );
 }

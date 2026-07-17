@@ -25,8 +25,30 @@ export async function POST(
   });
   if (!journal) return new NextResponse("Journal not found", { status: 404 });
 
-  const review = await prisma.review.create({
-    data: { journalId: params.id, authorName, comment },
-  });
-  return NextResponse.json(review, { status: 201 });
+  // Optional IELTS rubric bands (0–9, half-band steps).
+  function band(v: unknown): number | null {
+    const n = typeof v === "number" ? v : Number(v);
+    if (!Number.isFinite(n)) return null;
+    if (n < 0 || n > 9) return null;
+    return Math.round(n * 2) / 2;
+  }
+  const rubric = {
+    rubricTask: band(body.rubricTask),
+    rubricCoherence: band(body.rubricCoherence),
+    rubricLexical: band(body.rubricLexical),
+    rubricGrammar: band(body.rubricGrammar),
+  };
+
+  try {
+    const review = await prisma.review.create({
+      data: { journalId: params.id, authorName, comment, ...rubric },
+    });
+    return NextResponse.json(review, { status: 201 });
+  } catch {
+    // Fallback for DBs without the rubric columns yet.
+    const review = await prisma.review.create({
+      data: { journalId: params.id, authorName, comment },
+    });
+    return NextResponse.json(review, { status: 201 });
+  }
 }
