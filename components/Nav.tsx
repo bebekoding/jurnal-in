@@ -8,10 +8,17 @@ import { CaretDown } from "@phosphor-icons/react";
 type Item = { href: string; label: string };
 type Group = { label: string; items: Item[] };
 
-const HOME: Item = { href: "/", label: "Home" };
-const JOURNAL: Item = { href: "/new", label: "Journal" };
+// Rendered left-to-right; a plain Item is a top-level link, a Group is a
+// dropdown.
+type NavEntry = Item | Group;
 
-const GROUPS: Group[] = [
+function isGroup(e: NavEntry): e is Group {
+  return (e as Group).items !== undefined;
+}
+
+const ENTRIES: NavEntry[] = [
+  { href: "/", label: "Home" },
+  { href: "/new", label: "Journal" },
   {
     label: "Writing",
     items: [
@@ -19,13 +26,8 @@ const GROUPS: Group[] = [
       { href: "/topics", label: "Task 2" },
     ],
   },
-  {
-    label: "Practice",
-    items: [
-      { href: "/reading", label: "Reading" },
-      { href: "/vocab", label: "Vocab" },
-    ],
-  },
+  { href: "/reading", label: "Reading" },
+  { href: "/idioms", label: "Idiom" },
   {
     label: "Insights",
     items: [
@@ -52,22 +54,25 @@ export function Nav() {
 
   return (
     <nav className="flex items-center gap-0.5 md:gap-1.5 text-sm">
-      <Link href={HOME.href} className={linkClass(isActive(HOME.href))}>
-        {HOME.label}
-      </Link>
-      <Link href={JOURNAL.href} className={linkClass(isActive(JOURNAL.href))}>
-        {JOURNAL.label}
-      </Link>
-
-      {GROUPS.map((g) => (
-        <DropdownMenu
-          key={g.label}
-          group={g}
-          active={g.items.some((i) => isActive(i.href))}
-          isActive={isActive}
-          linkClass={linkClass}
-        />
-      ))}
+      {ENTRIES.map((e) =>
+        isGroup(e) ? (
+          <DropdownMenu
+            key={e.label}
+            group={e}
+            active={e.items.some((i) => isActive(i.href))}
+            isActive={isActive}
+            linkClass={linkClass}
+          />
+        ) : (
+          <Link
+            key={e.href}
+            href={e.href}
+            className={linkClass(isActive(e.href))}
+          >
+            {e.label}
+          </Link>
+        )
+      )}
     </nav>
   );
 }
