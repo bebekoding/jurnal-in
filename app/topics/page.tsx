@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { todayJakartaISO, formatDateLong } from "@/lib/date";
+import { todayJakartaISO, formatDateLong, addDaysISO } from "@/lib/date";
 import { seededShuffle } from "@/lib/random";
 import TopicsList from "./TopicsList";
 
 export const dynamic = "force-dynamic";
 
 const DAILY_COUNT = 3;
+// One-day extension: show yesterday's essay rotation again today so the
+// group can finish topics they didn't get to. Remove this line after 2026-07-17.
+const REPEAT_YESTERDAY_ON = "2026-07-17";
 
 type TopicRow = {
   id: string;
@@ -81,7 +84,8 @@ export default async function TopicsPage() {
   } else {
     // Normal rotation: exclude any topic ever marked as featured
     const poolTopics = allTopics.filter((t) => t.featuredFor === null);
-    const shuffled = seededShuffle(poolTopics, today);
+    const seed = today === REPEAT_YESTERDAY_ON ? addDaysISO(today, -1) : today;
+    const shuffled = seededShuffle(poolTopics, seed);
     const prioritized = [...shuffled].sort(
       (a, b) => a._count.journals - b._count.journals
     );
