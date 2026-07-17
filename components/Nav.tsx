@@ -6,22 +6,33 @@ import { useEffect, useRef, useState } from "react";
 import { CaretDown } from "@phosphor-icons/react";
 
 type Item = { href: string; label: string };
+type Group = { label: string; items: Item[] };
 
-const ITEMS: Item[] = [
-  { href: "/", label: "Home" },
-  { href: "/new", label: "Journal" },
-];
+const HOME: Item = { href: "/", label: "Home" };
+const JOURNAL: Item = { href: "/new", label: "Journal" };
 
-const WRITING: Item[] = [
-  { href: "/tables", label: "Task 1" },
-  { href: "/topics", label: "Task 2" },
-];
-
-const TAIL: Item[] = [
-  { href: "/reading", label: "Reading" },
-  { href: "/vocab", label: "Vocab" },
-  { href: "/stats", label: "Stats" },
-  { href: "/export", label: "Recap" },
+const GROUPS: Group[] = [
+  {
+    label: "Writing",
+    items: [
+      { href: "/tables", label: "Task 1" },
+      { href: "/topics", label: "Task 2" },
+    ],
+  },
+  {
+    label: "Practice",
+    items: [
+      { href: "/reading", label: "Reading" },
+      { href: "/vocab", label: "Vocab" },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { href: "/stats", label: "Stats" },
+      { href: "/export", label: "Recap" },
+    ],
+  },
 ];
 
 export function Nav() {
@@ -41,43 +52,33 @@ export function Nav() {
 
   return (
     <nav className="flex items-center gap-0.5 md:gap-1.5 text-sm">
-      {ITEMS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={linkClass(isActive(item.href))}
-        >
-          {item.label}
-        </Link>
-      ))}
+      <Link href={HOME.href} className={linkClass(isActive(HOME.href))}>
+        {HOME.label}
+      </Link>
+      <Link href={JOURNAL.href} className={linkClass(isActive(JOURNAL.href))}>
+        {JOURNAL.label}
+      </Link>
 
-      <WritingMenu
-        items={WRITING}
-        active={WRITING.some((w) => isActive(w.href))}
-        isActive={isActive}
-        linkClass={linkClass}
-      />
-
-      {TAIL.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={linkClass(isActive(item.href))}
-        >
-          {item.label}
-        </Link>
+      {GROUPS.map((g) => (
+        <DropdownMenu
+          key={g.label}
+          group={g}
+          active={g.items.some((i) => isActive(i.href))}
+          isActive={isActive}
+          linkClass={linkClass}
+        />
       ))}
     </nav>
   );
 }
 
-function WritingMenu({
-  items,
+function DropdownMenu({
+  group,
   active,
   isActive,
   linkClass,
 }: {
-  items: Item[];
+  group: Group;
   active: boolean;
   isActive: (href: string) => boolean;
   linkClass: (active: boolean) => string;
@@ -85,7 +86,6 @@ function WritingMenu({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close on outside click / Escape.
   useEffect(() => {
     if (!open) return;
     function onClick(e: MouseEvent) {
@@ -111,7 +111,7 @@ function WritingMenu({
         aria-expanded={open}
         className={`${linkClass(active)} gap-1`}
       >
-        Writing
+        {group.label}
         <CaretDown
           size={12}
           weight="bold"
@@ -122,9 +122,9 @@ function WritingMenu({
       {open && (
         <div
           role="menu"
-          className="absolute left-0 top-10 z-50 w-40 card bg-paper-raised p-1.5"
+          className="absolute right-0 md:left-0 top-10 z-50 w-40 card bg-paper-raised p-1.5"
         >
-          {items.map((item) => (
+          {group.items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
