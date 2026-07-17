@@ -8,7 +8,9 @@ import {
 import { prisma } from "@/lib/prisma";
 import { streaksByAuthor } from "@/lib/streak";
 import { StreakBadge } from "@/components/StreakBadge";
+import { TodayNudge } from "@/components/TodayNudge";
 import { EntryCard, type EntryRow } from "@/components/EntryCard";
+import { isoDateJakarta, todayJakartaISO, addDaysISO } from "@/lib/date";
 
 const SECTION_LIMIT = 6;
 
@@ -69,6 +71,17 @@ export default async function HomePage() {
     .map(([name, days]) => ({ name, days }))
     .sort((a, b) => b.days - a.days)
     .slice(0, 3);
+
+  // Per-writer "wrote today" + "this week" for the home nudge/digest.
+  const today = todayJakartaISO();
+  const weekAgo = addDaysISO(today, -6); // today + previous 6 days = 7-day window
+  const activity: Record<string, { wroteToday: boolean; thisWeek: number }> = {};
+  for (const j of journals) {
+    const d = isoDateJakarta(j.createdAt);
+    const a = (activity[j.authorName] ||= { wroteToday: false, thisWeek: 0 });
+    if (d === today) a.wroteToday = true;
+    if (d >= weekAgo) a.thisWeek += 1;
+  }
 
   return (
     <div className="space-y-16">
@@ -143,6 +156,8 @@ export default async function HomePage() {
           <StreakBadge dict={streakDict} top={topStreaks} />
         </aside>
       </section>
+
+      <TodayNudge activity={activity} streaks={streakDict} />
 
       {journals.length === 0 && (
         <div className="card p-10 text-center text-ink-muted" data-reveal>
