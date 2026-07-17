@@ -1,15 +1,17 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import { EntryCard, type EntryRow } from "@/components/EntryCard";
+import FeedFilters from "./FeedFilters";
 
 export const dynamic = "force-dynamic";
 
 const TYPES = {
-  journal: { label: "Journals", singular: "journal" },
-  essay: { label: "Essays", singular: "essay" },
-  table: { label: "Tables", singular: "table" },
-  all: { label: "All entries", singular: "entry" },
+  journal: { label: "Journals", singular: "journal", plural: "journals" },
+  essay: { label: "Essays", singular: "essay", plural: "essays" },
+  table: { label: "Tables", singular: "table", plural: "tables" },
+  all: { label: "All entries", singular: "entry", plural: "entries" },
 } as const;
 
 type FeedType = keyof typeof TYPES;
@@ -18,6 +20,10 @@ function parseType(input: string | string[] | undefined): FeedType {
   const value = Array.isArray(input) ? input[0] : input;
   if (value && value in TYPES) return value as FeedType;
   return "all";
+}
+
+function one(v: string | string[] | undefined): string {
+  return (Array.isArray(v) ? v[0] : v) ?? "";
 }
 
 export async function generateMetadata({
@@ -32,10 +38,26 @@ export async function generateMetadata({
 export default async function FeedPage({
   searchParams,
 }: {
-  searchParams: { type?: string };
+  searchParams: {
+    type?: string;
+    q?: string;
+    author?: string;
+    from?: string;
+    to?: string;
+  };
 }) {
   const type = parseType(searchParams.type);
   const meta = TYPES[type];
+  const q = one(searchParams.q).trim().toLowerCase();
+  const author = one(searchParams.author);
+  const from = one(searchParams.from);
+  const to = one(searchParams.to);
+  const fromT = /^\d{4}-\d{2}-\d{2}$/.test(from)
+    ? new Date(from + "T00:00:00").getTime()
+    : null;
+  const toT = /^\d{4}-\d{2}-\d{2}$/.test(to)
+    ? new Date(to + "T23:59:59").getTime()
+    : null;
 
   let journals: EntryRow[] = await prisma.journal
     .findMany({
@@ -74,11 +96,38 @@ export default async function FeedPage({
   }
 
   const rows = journals.filter((j) => {
-    if (type === "all") return true;
-    if (type === "table") return j.tableTopicId || j.tableTopic;
-    if (type === "essay")
-      return (j.topicId || j.topic) && !(j.tableTopicId || j.tableTopic);
-    return !j.topicId && !j.topic && !j.tableTopicId && !j.tableTopic;
+    // type
+    if (type === "table" && !(j.tableTopicId || j.tableTopic)) return false;
+    if (
+      type === "essay" &&
+      !((j.topicId || j.topic) && !(j.tableTopicId || j.tableTopic))
+    )
+      return false;
+    if (
+      type === "journal" &&
+      (j.topicId || j.topic || j.tableTopicId || j.tableTopic)
+    )
+      return false;
+    // author
+    if (author && author !== "All" && j.authorName !== author) return false;
+    // date range
+    const t = new Date(j.createdAt).getTime();
+    if (fromT !== null && t < fromT) return false;
+    if (toT !== null && t > toT) return false;
+    // keyword — title, content, author, and the topic/table prompt
+    if (q) {
+      const hay = [
+        j.title,
+        j.content,
+        j.authorName,
+        j.topic?.title ?? "",
+        j.tableTopic?.title ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
   });
 
   return (
@@ -96,14 +145,18 @@ export default async function FeedPage({
             {meta.label}
           </h1>
           <span className="text-xs text-ink-muted tabular">
-            {rows.length} {rows.length === 1 ? meta.singular : `${meta.singular}s`}
+            {rows.length} {rows.length === 1 ? meta.singular : meta.plural}
           </span>
         </div>
       </div>
 
+      <Suspense fallback={<div className="card p-4 h-40" />}>
+        <FeedFilters />
+      </Suspense>
+
       {rows.length === 0 ? (
         <div className="card p-10 text-center text-ink-muted" data-reveal>
-          Nothing here yet.
+          No entries match these filters.
         </div>
       ) : (
         <ul className="grid gap-5 md:grid-cols-2">

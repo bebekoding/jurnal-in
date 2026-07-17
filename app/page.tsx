@@ -3,6 +3,7 @@ import {
   PencilSimpleLine,
   Target,
   ArrowRight,
+  MagnifyingGlass,
 } from "@phosphor-icons/react/dist/ssr";
 import { prisma } from "@/lib/prisma";
 import { streaksByAuthor } from "@/lib/streak";
@@ -97,6 +98,13 @@ export default async function HomePage() {
             <Link href="/topics" className="btn btn-secondary">
               <Target size={16} weight="bold" />
               Today&apos;s topic
+            </Link>
+            <Link
+              href="/feed"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-ink transition"
+            >
+              <MagnifyingGlass size={16} weight="bold" />
+              Search entries
             </Link>
           </div>
         </div>

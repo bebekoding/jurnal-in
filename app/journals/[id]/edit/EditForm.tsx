@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Circle, ArrowLeft, Lock } from "@phosphor-icons/react";
 import { useIdentity } from "@/components/Identity";
+import { formatDateLong } from "@/lib/date";
 
 function wordCount(text: string) {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -185,6 +186,14 @@ export default function EditForm({
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full h-11 px-3 text-sm tabular"
               />
+              {kind === "journal" && /^\d{4}-\d{2}-\d{2}$/.test(date) && (
+                <p className="mt-2 text-xs text-ink-muted">
+                  Title will be{" "}
+                  <span className="font-semibold text-ink">
+                    {formatDateLong(date)}
+                  </span>
+                </p>
+              )}
             </div>
 
             {error && (
