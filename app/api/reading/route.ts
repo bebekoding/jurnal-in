@@ -4,6 +4,9 @@ import { PARTICIPANTS } from "@/lib/participants";
 import { getReadingSet, scoreSet } from "@/lib/reading-sets";
 import { parseWrittenAt } from "@/lib/date";
 
+// Same publicly-known admin token as the seed endpoint.
+const ADMIN_TOKEN = "jurnal-in-seed-2026";
+
 export async function GET() {
   try {
     const results = await prisma.readingResult.findMany({
@@ -13,6 +16,29 @@ export async function GET() {
     return NextResponse.json(results);
   } catch {
     return NextResponse.json([]);
+  }
+}
+
+// Token-guarded cleanup. DELETE /api/reading?token=…&id=<id> removes one
+// result; add &all=1 to clear every result (used to wipe test data).
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  if (url.searchParams.get("token") !== ADMIN_TOKEN) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+  try {
+    const id = url.searchParams.get("id");
+    if (id) {
+      await prisma.readingResult.delete({ where: { id } }).catch(() => null);
+      return NextResponse.json({ deleted: id });
+    }
+    if (url.searchParams.get("all") === "1") {
+      const res = await prisma.readingResult.deleteMany({});
+      return NextResponse.json({ deleted: res.count });
+    }
+    return new NextResponse("Pass id=<id> or all=1", { status: 400 });
+  } catch (e: any) {
+    return new NextResponse(e?.message ?? "Delete failed", { status: 500 });
   }
 }
 
