@@ -19,6 +19,7 @@ const WRITING: Item[] = [
 
 const TAIL: Item[] = [
   { href: "/reading", label: "Reading" },
+  { href: "/stats", label: "Stats" },
   { href: "/export", label: "Recap" },
 ];
 
