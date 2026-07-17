@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PARTICIPANTS } from "@/lib/participants";
 import { getReadingSet, scoreSet } from "@/lib/reading-sets";
 import { parseWrittenAt } from "@/lib/date";
+import { rateLimit, clientIp, tooMany } from "@/lib/rate-limit";
 
 // Same publicly-known admin token as the seed endpoint.
 const ADMIN_TOKEN = "jurnal-in-seed-2026";
@@ -43,6 +44,10 @@ export async function DELETE(req: Request) {
 }
 
 export async function POST(req: Request) {
+  // Max 10 submissions per minute per client.
+  const limit = rateLimit(`reading:${clientIp(req)}`, 10, 60_000);
+  if (!limit.ok) return tooMany(limit.retryAfter);
+
   const body = await req.json().catch(() => null);
   if (!body?.authorName || !body?.setId) {
     return new NextResponse("Writer and set are required", { status: 400 });

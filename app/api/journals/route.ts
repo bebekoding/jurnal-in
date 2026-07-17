@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PARTICIPANTS } from "@/lib/participants";
 import { paragraphCount, sentenceCount } from "@/lib/text";
 import { parseWrittenAt } from "@/lib/date";
+import { rateLimit, clientIp, tooMany } from "@/lib/rate-limit";
 
 export async function GET() {
   try {
@@ -43,6 +44,11 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // Max 5 new entries per minute per client — enough for legitimate use,
+  // stops loop-spam. Identity is spoofable so key on IP too.
+  const limit = rateLimit(`journal:${clientIp(req)}`, 5, 60_000);
+  if (!limit.ok) return tooMany(limit.retryAfter);
+
   const body = await req.json().catch(() => null);
   if (!body?.authorName || !body?.content) {
     return new NextResponse("Writer and content are required", {
