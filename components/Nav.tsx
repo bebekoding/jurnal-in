@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/new", label: "Journal" },
   { href: "/topics", label: "Essay" },
   { href: "/tables", label: "Table" },
+  { href: "/reading", label: "Reading" },
   { href: "/export", label: "Recap" },
 ];
 

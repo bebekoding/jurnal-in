@@ -62,3 +62,17 @@ model Review {
 
   @@index([journalId])
 }
+
+model ReadingResult {
+  id              String   @id @default(cuid())
+  authorName      String
+  setId           String
+  rawScore        Int
+  band            String
+  durationSeconds Int?
+  answers         String // JSON map of { questionNumber: givenAnswer }
+  createdAt       DateTime @default(now())
+
+  @@index([authorName])
+  @@index([createdAt])
+}

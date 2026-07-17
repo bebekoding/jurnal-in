@@ -67,6 +67,28 @@ async function run(): Promise<any> {
       "index Topic.featuredFor",
       `CREATE INDEX IF NOT EXISTS "Topic_featuredFor_idx" ON "Topic"("featuredFor")`,
     ],
+    [
+      "create ReadingResult",
+      `CREATE TABLE IF NOT EXISTS "ReadingResult" (
+        "id" TEXT NOT NULL,
+        "authorName" TEXT NOT NULL,
+        "setId" TEXT NOT NULL,
+        "rawScore" INTEGER NOT NULL,
+        "band" TEXT NOT NULL,
+        "durationSeconds" INTEGER,
+        "answers" TEXT NOT NULL,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "ReadingResult_pkey" PRIMARY KEY ("id")
+      )`,
+    ],
+    [
+      "index ReadingResult.authorName",
+      `CREATE INDEX IF NOT EXISTS "ReadingResult_authorName_idx" ON "ReadingResult"("authorName")`,
+    ],
+    [
+      "index ReadingResult.createdAt",
+      `CREATE INDEX IF NOT EXISTS "ReadingResult_createdAt_idx" ON "ReadingResult"("createdAt")`,
+    ],
   ];
   for (const [label, sql] of schemaStmts) {
     try {
