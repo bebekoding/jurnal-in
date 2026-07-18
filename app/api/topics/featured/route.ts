@@ -1,6 +1,44 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+const ADMIN_TOKEN = "jurnal-in-seed-2026";
+
+// Safe cleanup of stale topics by exact title prefix. Only deletes rows
+// with zero attached journals, so it can never reclassify someone's essay.
+// DELETE /api/topics/featured?token=…&titlePrefix=Malnutrition and stunting
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  if (url.searchParams.get("token") !== ADMIN_TOKEN) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+  const prefix = (url.searchParams.get("titlePrefix") ?? "").trim();
+  if (!prefix) {
+    return new NextResponse("titlePrefix is required", { status: 400 });
+  }
+  try {
+    const matches = await prisma.topic.findMany({
+      where: { title: { startsWith: prefix } },
+      select: { id: true, title: true, _count: { select: { journals: true } } },
+    });
+    const deletable = matches.filter((m) => m._count.journals === 0);
+    const skipped = matches
+      .filter((m) => m._count.journals > 0)
+      .map((m) => ({ title: m.title, journals: m._count.journals }));
+    if (deletable.length > 0) {
+      await prisma.topic.deleteMany({
+        where: { id: { in: deletable.map((d) => d.id) } },
+      });
+    }
+    return NextResponse.json({
+      matched: matches.length,
+      deleted: deletable.map((d) => d.title),
+      skippedWithJournals: skipped,
+    });
+  } catch (e: any) {
+    return new NextResponse(e?.message ?? "Delete failed", { status: 500 });
+  }
+}
+
 // One essay per line: "English title | Indonesian title"
 // A single date makes all of them featured for that day.
 type ParsedEssay = { title: string; titleId: string | null };

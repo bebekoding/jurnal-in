@@ -51,10 +51,10 @@ export function MarkdownTable({
               {row.map((cell, ci) => (
                 <td
                   key={ci}
-                  className={`border-[1.5px] border-ink px-3 py-2 text-ink ${
+                  className={`border-[1.5px] border-ink px-3 py-2 text-ink whitespace-nowrap ${
                     ci === 0
-                      ? "font-medium bg-paper-raised"
-                      : "text-right bg-paper-raised/40"
+                      ? "font-semibold bg-lime-soft/40 text-left"
+                      : `text-right ${ri % 2 === 0 ? "bg-paper-raised/60" : "bg-transparent"}`
                   }`}
                 >
                   {cell}
